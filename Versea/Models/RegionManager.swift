@@ -12,6 +12,8 @@ class RegionManager: ObservableObject {
     static let shared = RegionManager()
     @Published var allBlocks: [String: [Block]] = [:]
     var initWordIdex: Int = -1  // 第一个单词的索引
+    var timer: Timer? // 跟踪定时器的引用
+
     
     init() {
         let images = generateImagesConcurrently(count: 32)
@@ -135,6 +137,38 @@ class RegionManager: ObservableObject {
         }
         allBlocks = allBlocks // 重新赋值字典
     }
+    
+    func startAutoFlashing() {
+            // 如果定时器已经存在，不再创建新的定时器
+            if timer != nil {
+                return
+            }
+
+            // 每 3 秒触发一次定时器
+            timer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { [weak self] _ in
+                guard let self = self else { return }
+
+                // 遍历所有页面的方块
+                for (_, blocks) in self.allBlocks {
+                    for block in blocks {
+                        if block.isFlashing == true {
+                            // 随机生成新的文字和颜色
+                            let randomWord: String
+                            if arc4random_uniform(3) == 1 {
+                                randomWord = self.generateRandomWord()
+                            } else {
+                                randomWord = ""
+                            }
+                            
+                            let randomColor = Color.randomCustomColor()
+
+                            // 更新方块的文字和背景颜色
+                            self.update(for: block.page_index, blockID: block.id, newWord: randomWord, newColor: randomColor)
+                        }
+                    }
+                }
+            }
+        }
     
     
     func generateRandomWord(length: Int = Int.random(in: 3...10)) -> String {

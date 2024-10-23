@@ -19,6 +19,7 @@ struct CanvasView: View {
 }
 
 struct PageView: View {
+    
     let h: Int
     let v: Int
     @ObservedObject var regionManager = RegionManager.shared
@@ -39,14 +40,7 @@ struct PageView: View {
                             let columns = Array(repeating: GridItem(.fixed(blockWidth), spacing: 0), count: Int(gridSize.width))
                             LazyVGrid(columns: columns, spacing: 0) {
                                 ForEach(blocks, id: \.id) { block in
-                                    BlockView(word: .constant(block.text ?? ""), backgroundColor: .constant(block.backgroundColor), noiseImage: block.noiseImage){
-                                        (word, color) in
-                                        // 点击之后更新数据源
-                                        regionManager.update(for: block.page_index,
-                                                                            blockID: block.id,
-                                                                            newWord: word,
-                                                                            newColor: color)
-                                    }
+                                    BlockView(word: .constant(block.text ?? ""), backgroundColor: .constant(block.backgroundColor), noiseImage: block.noiseImage, block: block)
                                     .frame(width: blockWidth, height: blockHeight)
                                 }
                             }
@@ -60,7 +54,13 @@ struct PageView: View {
                   }
                 }
                 .onAppear() {
-                    
+                    // 页面加载时启动自动闪烁
+                    RegionManager.shared.startAutoFlashing()
+                                        
+                    // Fetch the phrase when the view appears
+                    LLMAPIManager.shared.fetchPhrase(from: "Write a poetic phrase about the stars.") { phrase in
+                        print("[CANVAS VIEW] A POETIC PHRASE ABOUT THE STARS: \(phrase)") // Log the generated phrase to the console
+                    }
                 }
                 .task(id: mainPage) {
                   if let mainPage {
@@ -78,6 +78,8 @@ struct PageView: View {
                 .clipped()
         }
     }
+    
+    
 }
 
 

@@ -19,8 +19,7 @@ class Block: Identifiable, ObservableObject, Equatable {
     var page_index: String
 
     var position: (x: Int, y: Int)
-    var isFlashing: Bool = false
-    var isCaptured: Bool = false
+    var isFlashing: Bool = true
     var index: Int = 0
 
     var noiseImage: UIImage
@@ -46,6 +45,6 @@ class Block: Identifiable, ObservableObject, Equatable {
       }
     
     var description: String {
-        return "Block(id: \(id), position: (\(position.x), \(position.y)), text: \(text ?? "nil"), isFlashing: \(isFlashing), isCaptured: \(isCaptured)), backgroundColor: \(backgroundColor))"
+        return "Block(id: \(id), position: (\(position.x), \(position.y)), text: \(text ?? "nil"), isFlashing: \(isFlashing), backgroundColor: \(backgroundColor))"
     }
 }

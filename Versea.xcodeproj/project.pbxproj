@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3F5A108E2CA9565D00D41671 /* GridModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F5A108D2CA9565D00D41671 /* GridModel.swift */; };
 		3F5A10902CA956DD00D41671 /* CanvasViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F5A108F2CA956DD00D41671 /* CanvasViewModel.swift */; };
 		3F5A10962CA958B100D41671 /* ShakeDetectingWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F5A10952CA958B100D41671 /* ShakeDetectingWindow.swift */; };
 		3F5A10982CA958EE00D41671 /* ColorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F5A10972CA958EE00D41671 /* ColorExtension.swift */; };
@@ -26,7 +25,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		3F5A108D2CA9565D00D41671 /* GridModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridModel.swift; sourceTree = "<group>"; };
 		3F5A108F2CA956DD00D41671 /* CanvasViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasViewModel.swift; sourceTree = "<group>"; };
 		3F5A10952CA958B100D41671 /* ShakeDetectingWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShakeDetectingWindow.swift; sourceTree = "<group>"; };
 		3F5A10972CA958EE00D41671 /* ColorExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ColorExtension.swift; path = ../Views/ColorExtension.swift; sourceTree = "<group>"; };
@@ -91,7 +89,6 @@
 			children = (
 				D70744262CBD28D70077A61D /* Block.swift */,
 				D70744272CBD28D70077A61D /* RegionManager.swift */,
-				3F5A108D2CA9565D00D41671 /* GridModel.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -234,7 +231,6 @@
 			files = (
 				3F5A10902CA956DD00D41671 /* CanvasViewModel.swift in Sources */,
 				D70744292CBD28D70077A61D /* Block.swift in Sources */,
-				3F5A108E2CA9565D00D41671 /* GridModel.swift in Sources */,
 				3F5A10982CA958EE00D41671 /* ColorExtension.swift in Sources */,
 				3F5A10962CA958B100D41671 /* ShakeDetectingWindow.swift in Sources */,
 				D70744322CBD4DF90077A61D /* CanvasView.swift in Sources */,
@@ -375,10 +371,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Versea/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = WV3KTAW42N;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Versea/Info.plist;
@@ -406,10 +403,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Versea/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = WV3KTAW42N;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Versea/Info.plist;

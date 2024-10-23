@@ -16,6 +16,7 @@ struct BlockView: View {
     @Binding var backgroundColor: Color
     var noiseImage: UIImage
     var onChange: ((String, Color) -> Void)?
+    var block: Block // 传入当前 Block 对象
 
     var body: some View {
         ZStack {
@@ -38,9 +39,10 @@ struct BlockView: View {
         }
         .clipped()
         .onTapGesture {
-            let newWord = RegionManager.shared.generateRandomWord()
-            let newColor = Color.randomCustomColor()
-            onChange?(newWord, newColor)
+//            let newWord = RegionManager.shared.generateRandomWord()
+//            let newColor = Color.randomCustomColor()
+//            onChange?(newWord, newColor)
+            block.isFlashing = false
         }
     }
 }
