@@ -171,9 +171,18 @@ class RegionManager: ObservableObject {
         }
     
     
-    func generateRandomWord(length: Int = Int.random(in: 3...10)) -> String {
-        let letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        return String((0..<length).compactMap { _ in letters.randomElement() })
+    // 非异步版本，直接从缓存中获取一个随机单词
+    func generateRandomWord() -> String {
+        // 从已缓存的词库中选取一个随机单词
+        let randomWord = WordManager.shared.wordList.randomElement() ?? ""
+        return randomWord
+    }
+    
+    func reorderCurrentPage() {
+        
     }
 
+    
+    
+    
 }

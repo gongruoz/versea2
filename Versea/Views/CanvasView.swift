@@ -29,6 +29,7 @@ struct PageView: View {
 
     var body: some View {
         VStack {
+            
             Color.clear
                 .overlay(
                     GeometryReader { geometry in
@@ -56,11 +57,9 @@ struct PageView: View {
                 .onAppear() {
                     // 页面加载时启动自动闪烁
                     RegionManager.shared.startAutoFlashing()
-                                        
-                    // Fetch the phrase when the view appears
-                    LLMAPIManager.shared.fetchPhrase(from: "Write a poetic phrase about the stars.") { phrase in
-                        print("[CANVAS VIEW] A POETIC PHRASE ABOUT THE STARS: \(phrase)") // Log the generated phrase to the console
-                    }
+                }
+                .onShake {
+                    RegionManager.shared.reorderCurrentPage()
                 }
                 .task(id: mainPage) {
                   if let mainPage {
@@ -70,7 +69,7 @@ struct PageView: View {
                             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                                 regionManager.generateFirstBlockWord()
                             }
-
+                        
                      }
                     }
                   }

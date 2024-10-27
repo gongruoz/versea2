@@ -2,33 +2,34 @@
 // Versea
 // Created by Hazel Gong on 2024/9/15.
 
+
 import Foundation
 
 class LLMAPIManager {
     static let shared = LLMAPIManager()
-    private let apiKey = "Bearer 7cab015eb4e448b4ccfedea1291720dac1a822b3915a5ea9f5cb66fa75cdcc88" // Replace with your actual API key
+    private let apiKey = "Bearer 7cab015eb4e448b4ccfedea1291720dac1a822b3915a5ea9f5cb66fa75cdcc88"
     private init() {}
 
     // Function to fetch a generated phrase from Together AI API
     func fetchPhrase(from prompt: String, completion: @escaping (String) -> Void) {
-        // Prepare the API URL
+        // 准备 API URL
         let url = URL(string: "https://api.together.xyz/v1/chat/completions")!
 
-        // Create a URL request
+        // 创建 URL 请求
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type") // 确保内容类型为 JSON
         request.setValue(apiKey, forHTTPHeaderField: "Authorization")
 
-        // Prepare the request body (parameters)
+        // 请求体（参数）
         let parameters: [String: Any] = [
-            "model": "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo", // The Together AI model
+            "model": "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo", // Together AI 模型
             "messages": [
-                ["role": "user", "content": prompt] // Your input prompt
+                ["role": "user", "content": prompt] // 输入 prompt
             ]
         ]
 
-        // Convert parameters to JSON data
+        // 将请求体转为 JSON 数据
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: parameters, options: [])
         } catch {
@@ -36,14 +37,14 @@ class LLMAPIManager {
             return
         }
 
-        // Create a URLSession task to fetch the response
+        // 创建 URLSession 任务以获取响应
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
                 print("Error fetching Together AI response: \(error.localizedDescription)")
                 return
             }
 
-            // Print the HTTP response status code
+            // 打印 HTTP 响应状态码
             if let httpResponse = response as? HTTPURLResponse {
                 print("HTTP Response Status Code: \(httpResponse.statusCode)")
             }
@@ -53,24 +54,21 @@ class LLMAPIManager {
                 return
             }
 
-            // Print the raw response data for debugging
+            // 打印服务器返回的原始响应数据（无论成功与否）
             if let responseString = String(data: data, encoding: .utf8) {
-                print("Response Data: \(responseString)")
+                print("Raw Response: \(responseString)") // 调试用，打印服务器返回的原始数据
             }
 
-            // Parse the response
+            // 尝试解析 JSON 响应
             do {
                 let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
                 if let choices = json?["choices"] as? [[String: Any]],
                    let generatedText = choices.first?["content"] as? String {
                     let trimmedText = generatedText.trimmingCharacters(in: .whitespacesAndNewlines)
                     
-                    // Print the generated text for debugging
-                    print("Generated Response: \(trimmedText)") // Debug output
-                    
-                    // Call the completion handler with the generated text
+                    // 返回生成的文本
                     DispatchQueue.main.async {
-                        completion(trimmedText) // Return the generated text
+                        completion(trimmedText) // 通过回调返回生成的文本
                     }
                 } else {
                     print("Unexpected JSON structure: \(String(describing: json))")
@@ -80,7 +78,9 @@ class LLMAPIManager {
             }
         }
 
-        // Start the task
+        // 启动任务
         task.resume()
     }
+    
+    
 }

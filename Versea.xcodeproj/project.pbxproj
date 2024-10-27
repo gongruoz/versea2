@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3F0BE9272CCB805A00EEB4A0 /* WordManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F0BE9262CCB805500EEB4A0 /* WordManager.swift */; };
 		3F5A10902CA956DD00D41671 /* CanvasViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F5A108F2CA956DD00D41671 /* CanvasViewModel.swift */; };
 		3F5A10962CA958B100D41671 /* ShakeDetectingWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F5A10952CA958B100D41671 /* ShakeDetectingWindow.swift */; };
 		3F5A10982CA958EE00D41671 /* ColorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F5A10972CA958EE00D41671 /* ColorExtension.swift */; };
@@ -25,6 +26,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		3F0BE9262CCB805500EEB4A0 /* WordManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordManager.swift; sourceTree = "<group>"; };
 		3F5A108F2CA956DD00D41671 /* CanvasViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasViewModel.swift; sourceTree = "<group>"; };
 		3F5A10952CA958B100D41671 /* ShakeDetectingWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShakeDetectingWindow.swift; sourceTree = "<group>"; };
 		3F5A10972CA958EE00D41671 /* ColorExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ColorExtension.swift; path = ../Views/ColorExtension.swift; sourceTree = "<group>"; };
@@ -87,6 +89,7 @@
 		3F5A10942CA9576500D41671 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				3F0BE9262CCB805500EEB4A0 /* WordManager.swift */,
 				D70744262CBD28D70077A61D /* Block.swift */,
 				D70744272CBD28D70077A61D /* RegionManager.swift */,
 			);
@@ -231,6 +234,7 @@
 			files = (
 				3F5A10902CA956DD00D41671 /* CanvasViewModel.swift in Sources */,
 				D70744292CBD28D70077A61D /* Block.swift in Sources */,
+				3F0BE9272CCB805A00EEB4A0 /* WordManager.swift in Sources */,
 				3F5A10982CA958EE00D41671 /* ColorExtension.swift in Sources */,
 				3F5A10962CA958B100D41671 /* ShakeDetectingWindow.swift in Sources */,
 				D70744322CBD4DF90077A61D /* CanvasView.swift in Sources */,
