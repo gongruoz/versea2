@@ -178,11 +178,80 @@ class RegionManager: ObservableObject {
         return randomWord
     }
     
-    func reorderCurrentPage() {
-        
-    }
-
     
+    // when shaked, reorder the kept words on the current page
+    func reorderCurrentPage() {
+        // 获取当前页面的 `page_index`
+        guard let mainPage = CanvasViewModel.shared.currentMainPage else {
+            print("无法获取当前页面")
+            return
+        }
+        
+        let pageIndex = CanvasViewModel.shared.getIndex(h: mainPage.horizontal, v: mainPage.vertical)
+        
+        // 获取当前页面的 `blocks`，并筛选出 `isFlashing = false` 的 `blocks`
+        guard let blocks = allBlocks[pageIndex] else {
+            print("未找到该页面的 blocks")
+            return
+        }
+        
+        // 找到 `isFlashing = false` 的 blocks
+        let nonFlashingBlocks = blocks.filter { !$0.isFlashing }
+        
+        // 收集这些 blocks 的文本内容和 ID
+        var textsToReorder = [String]()
+        var blockIds = [String]()
+        
+        for block in nonFlashingBlocks {
+            if let text = block.text {
+                textsToReorder.append(text)
+                blockIds.append(block.id)
+            }
+        }
+        
+        // 调用 LLM API 重新排序文本
+        Task {
+            if let reorderedText = await reorderTextWithLLM(textsToReorder) {
+                // 将新排序后的文本写回到相应的 blocks
+                for (index, blockId) in blockIds.enumerated() {
+                    if index < reorderedText.count {
+                        updateBlockText(for: pageIndex, blockID: blockId, newText: reorderedText[index])
+                    }
+                }
+                print("重新排序后的文本已更新")
+            } else {
+                print("LLM 重排序失败")
+            }
+        }
+    }
+    
+    // 更新指定 block 的文本
+    func updateBlockText(for pageIndex: String, blockID: String, newText: String) {
+        guard let blocks = allBlocks[pageIndex] else { return }
+        
+        for block in blocks {
+            if block.id == blockID {
+                block.text = newText
+                break
+            }
+        }
+        allBlocks[pageIndex] = blocks
+        allBlocks = allBlocks // 重新赋值字典
+    }
+    
+    // 使用 LLM API 重新排序文本
+    func reorderTextWithLLM(_ texts: [String]) async -> [String]? {
+        let prompt = "Reorder these words into a poetic line, with no new words added, return exactly the new line and nothing else: \(texts.joined(separator: " "))"
+        
+        // 异步调用生成词库，等待其完成
+        await WordManager.shared.generateWordBank(from: prompt)
+        
+        // 从生成的词库中获取内容
+        let response = WordManager.shared.wordList
+        
+        // 返回内容，或者返回 nil 表示失败
+        return response.isEmpty ? nil : response
+    }
     
     
 }

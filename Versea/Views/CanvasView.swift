@@ -52,6 +52,9 @@ struct PageView: View {
                   if let percent { // 加载百分比
                       // 页面出现的时候，需要做数据处理操作
                       self.percent = percent
+                      // 更新当前页面索引
+                      CanvasViewModel.shared.updateCurrentMainPage(horizontal: h, vertical: v)
+                                          
                   }
                 }
                 .onAppear() {
@@ -60,17 +63,17 @@ struct PageView: View {
                 }
                 .onShake {
                     RegionManager.shared.reorderCurrentPage()
+                    print("shaked")
                 }
                 .task(id: mainPage) {
                   if let mainPage {
                     if mainPage.horizontal == h, mainPage.vertical == v {
                       isCurrent = true
                       if mainPage.horizontal % 3 == 0 && mainPage.vertical % 3 == 0 {
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                                regionManager.generateFirstBlockWord()
-                            }
-                        
-                     }
+                          DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                              regionManager.generateFirstBlockWord()
+                          }
+                      }
                     }
                   }
                 }
