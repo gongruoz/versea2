@@ -63,7 +63,6 @@ struct PageView: View {
                 }
                 .onShake {
                     RegionManager.shared.reorderCurrentPage()
-                    print("shaked")
                 }
                 .task(id: mainPage) {
                   if let mainPage {

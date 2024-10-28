@@ -19,7 +19,7 @@ class Block: Identifiable, ObservableObject, Equatable {
     var page_index: String
 
     var position: (x: Int, y: Int)
-    var isFlashing: Bool = true
+    var isFlashing: Bool = true // 点击之后会被设置成 false
     var index: Int = 0
 
     var noiseImage: UIImage
