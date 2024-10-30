@@ -54,11 +54,10 @@ struct PageView: View {
                       self.percent = percent
                       // 更新当前页面索引
                       CanvasViewModel.shared.updateCurrentMainPage(horizontal: h, vertical: v)
-                                          
+                      
                   }
                 }
-                .onAppear() {
-                    // 页面加载时启动自动闪烁
+                .onAppear {
                     RegionManager.shared.startAutoFlashing()
                 }
                 .onShake {

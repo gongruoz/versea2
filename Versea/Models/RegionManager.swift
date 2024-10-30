@@ -138,6 +138,7 @@ class RegionManager: ObservableObject {
         allBlocks = allBlocks // 重新赋值字典
     }
     
+    
     func startAutoFlashing() {
             // 如果定时器已经存在，不再创建新的定时器
             if timer != nil {
@@ -238,6 +239,21 @@ class RegionManager: ObservableObject {
         allBlocks[pageIndex] = blocks
         allBlocks = allBlocks // 重新赋值字典
     }
+    
+    // find out how many blocks have been fixed
+    func occupancyRate(for pageIndex: String) -> Double {
+        guard let blocks = allBlocks[pageIndex] else {
+            print("No blocks found for the specified page index.")
+            return 0.0
+        }
+        
+        let nonFlashingBlocks = blocks.filter { !$0.isFlashing }
+        let totalBlocks = blocks.count
+        
+        // Calculate the occupancy rate as a ratio of non-flashing blocks to total blocks
+        return totalBlocks > 0 ? Double(nonFlashingBlocks.count) / Double(totalBlocks) : 0.0
+    }
+    
     
     // 使用 LLM API 重新排序文本
     func reorderTextWithLLM(_ texts: [String]) async -> [String]? {

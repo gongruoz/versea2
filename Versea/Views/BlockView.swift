@@ -16,7 +16,7 @@ struct BlockView: View {
     @Binding var backgroundColor: Color
     var noiseImage: UIImage
     var onChange: ((String, Color) -> Void)?
-    var block: Block // 传入当前 Block 对象
+    @ObservedObject var block: Block // 传入当前 Block 对象
 
     var body: some View {
         ZStack {
@@ -26,6 +26,19 @@ struct BlockView: View {
                 .opacity(1)
             backgroundColor
                 .opacity(0.75).animation(.easeIn(duration: 1))
+            
+            // optional inner shadow
+            if !block.isFlashing {
+                RoundedRectangle(cornerRadius: 25, style: .continuous)
+                .fill(
+                    .shadow(.inner(color: Color(red: 197/255, green: 197/255, blue: 197/255),radius: 3, x:3, y: 3))
+                    .shadow(.inner(color: .white, radius: 3, x: -3, y: -3))
+                ).opacity(0.12)
+                    .padding(3)
+                    .blur(radius: 8)
+                
+            }
+            
             withAnimation(.easeIn(duration: 1.5)) {
                 Text(word)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -35,14 +48,15 @@ struct BlockView: View {
                     .bold()
                     .padding(EdgeInsets(top: 2, leading: 2, bottom: 2, trailing: 2))
             }
-
         }
         .clipped()
         .onTapGesture {
 //            let newWord = RegionManager.shared.generateRandomWord()
 //            let newColor = Color.randomCustomColor()
 //            onChange?(newWord, newColor)
-            block.isFlashing = false
+            if block.text != "" {
+                block.isFlashing = !block.isFlashing
+            }
         }
     }
 }
