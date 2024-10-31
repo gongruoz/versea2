@@ -13,6 +13,9 @@ class RegionManager: ObservableObject {
     @Published var allBlocks: [String: [Block]] = [:]
     var initWordIdex: Int = -1  // 第一个单词的索引
     var timer: Timer? // 跟踪定时器的引用
+    
+    // 用于存储每个页面的诗句
+    @Published var orderedPoem: [(String, [String])] = []
 
     
     init() {
@@ -140,36 +143,36 @@ class RegionManager: ObservableObject {
     
     
     func startAutoFlashing() {
-            // 如果定时器已经存在，不再创建新的定时器
-            if timer != nil {
-                return
-            }
+        // 如果定时器已经存在，不再创建新的定时器
+        if timer != nil {
+            return
+        }
 
-            // 每 3 秒触发一次定时器
-            timer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { [weak self] _ in
-                guard let self = self else { return }
+        // 每 3 秒触发一次定时器
+        timer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { [weak self] _ in
+            guard let self = self else { return }
 
-                // 遍历所有页面的方块
-                for (_, blocks) in self.allBlocks {
-                    for block in blocks {
-                        if block.isFlashing == true {
-                            // 随机生成新的文字和颜色
-                            let randomWord: String
-                            if arc4random_uniform(3) == 1 {
-                                randomWord = self.generateRandomWord()
-                            } else {
-                                randomWord = ""
-                            }
-                            
-                            let randomColor = Color.randomCustomColor()
-
-                            // 更新方块的文字和背景颜色
-                            self.update(for: block.page_index, blockID: block.id, newWord: randomWord, newColor: randomColor)
+            // 遍历所有页面的方块
+            for (_, blocks) in self.allBlocks {
+                for block in blocks {
+                    if block.isFlashing == true {
+                        // 随机生成新的文字和颜色
+                        let randomWord: String
+                        if arc4random_uniform(3) == 1 {
+                            randomWord = self.generateRandomWord()
+                        } else {
+                            randomWord = ""
                         }
+                        
+                        let randomColor = Color.randomCustomColor()
+
+                        // 更新方块的文字和背景颜色
+                        self.update(for: block.page_index, blockID: block.id, newWord: randomWord, newColor: randomColor)
                     }
                 }
             }
         }
+    }
     
     
     // 非异步版本，直接从缓存中获取一个随机单词
@@ -179,8 +182,8 @@ class RegionManager: ObservableObject {
         return randomWord
     }
     
+        
     
-    // when shaked, reorder the kept words on the current page
     func reorderCurrentPage() {
         // 获取当前页面的 `page_index`
         guard let mainPage = CanvasViewModel.shared.currentMainPage else {
@@ -211,17 +214,30 @@ class RegionManager: ObservableObject {
         }
         
         // 调用 LLM API 重新排序文本
-        Task {
-            if let reorderedText = await reorderTextWithLLM(textsToReorder) {
-                // 将新排序后的文本写回到相应的 blocks
-                for (index, blockId) in blockIds.enumerated() {
-                    if index < reorderedText.count {
-                        updateBlockText(for: pageIndex, blockID: blockId, newText: reorderedText[index])
+        if textsToReorder != [] {
+            Task {
+                if let reorderedText = await reorderTextWithLLM(textsToReorder) {
+                    // 将新排序后的文本写回到相应的 blocks
+                    for (index, blockId) in blockIds.enumerated() {
+                        if index < reorderedText.count {
+                            updateBlockText(for: pageIndex, blockID: blockId, newText: reorderedText[index])
+                        }
                     }
+                    
+                    // 更新 orderedPoem 数组，使其与 reorderTextWithLLM 返回的顺序一致
+                    DispatchQueue.main.async {
+                        // 检查 `orderedPoem` 中是否已有该 `pageIndex`，如果有则更新
+                        if let index = self.orderedPoem.firstIndex(where: { $0.0 == pageIndex }) {
+                            self.orderedPoem[index] = (pageIndex, reorderedText)
+                        } else {
+                            // 否则将新的 pageIndex 和内容追加到 orderedPoem 中
+                            self.orderedPoem.append((pageIndex, reorderedText))
+                        }
+                        print("重新排序后的 orderedPoem 已更新: \(self.orderedPoem)")
+                    }
+                } else {
+                    print("LLM 重排序失败")
                 }
-                print("重新排序后的文本已更新")
-            } else {
-                print("LLM 重排序失败")
             }
         }
     }
@@ -229,15 +245,25 @@ class RegionManager: ObservableObject {
     // 更新指定 block 的文本
     func updateBlockText(for pageIndex: String, blockID: String, newText: String) {
         guard let blocks = allBlocks[pageIndex] else { return }
-        
+
+        // 更新 block 的文本内容
         for block in blocks {
             if block.id == blockID {
-                block.text = newText
+                DispatchQueue.main.async {
+                    block.text = newText
+                }
                 break
             }
         }
-        allBlocks[pageIndex] = blocks
-        allBlocks = allBlocks // 重新赋值字典
+
+        // 更新 allBlocks
+        DispatchQueue.main.async {
+            self.allBlocks[pageIndex] = blocks
+            self.allBlocks = self.allBlocks // 重新赋值字典
+
+        }
+    
+        
     }
     
     // find out how many blocks have been fixed
@@ -265,9 +291,12 @@ class RegionManager: ObservableObject {
         // 从生成的词库中获取内容
         let response = WordManager.shared.wordList
         
+        
         // 返回内容，或者返回 nil 表示失败
         return response.isEmpty ? nil : response
     }
     
     
 }
+
+

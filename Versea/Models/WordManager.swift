@@ -18,11 +18,14 @@ class WordManager {
         do {
             let response = try await theTogetherAIConnector.processPrompt(prompt: prompt)
             let wordBank = processPhrase(response)
-            self.wordList = wordBank // 缓存词库
-            print("词库生成完成: \(wordBank)")
+            
+            // 将新生成的词追加到现有的 wordList，而不是替换
+            DispatchQueue.main.async {
+                self.wordList.append(contentsOf: wordBank)
+                print("词库生成完成: \(self.wordList)")
+            }
         } catch {
             print("生成词库失败: \(error)")
-            self.wordList = [] // 出现错误时，清空词库
         }
     }
 
