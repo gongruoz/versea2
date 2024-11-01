@@ -226,15 +226,23 @@ class RegionManager: ObservableObject {
                     
                     // 更新 orderedPoem 数组，使其与 reorderTextWithLLM 返回的顺序一致
                     DispatchQueue.main.async {
-                        // 检查 `orderedPoem` 中是否已有该 `pageIndex`，如果有则更新
+                        // Check if orderedPoem already contains an entry for pageIndex
                         if let index = self.orderedPoem.firstIndex(where: { $0.0 == pageIndex }) {
-                            self.orderedPoem[index] = (pageIndex, reorderedText)
+                            // If reorderedText is different from the existing entry, update it
+                            if self.orderedPoem[index].1 != reorderedText {
+                                self.orderedPoem[index].1 = reorderedText
+                                print("Updated orderedPoem for pageIndex \(pageIndex) with new reorderedText: \(reorderedText)")
+                            } else {
+                                print("No update needed. reorderedText for pageIndex \(pageIndex) is already up-to-date.")
+                            }
                         } else {
-                            // 否则将新的 pageIndex 和内容追加到 orderedPoem 中
+                            // Append a new entry if pageIndex does not exist in orderedPoem
                             self.orderedPoem.append((pageIndex, reorderedText))
+                            print("Added new entry to orderedPoem for pageIndex \(pageIndex) with reorderedText: \(reorderedText)")
                         }
-                        print("重新排序后的 orderedPoem 已更新: \(self.orderedPoem)")
+                        print("Current orderedPoem state: \(self.orderedPoem)")
                     }
+                    
                 } else {
                     print("LLM 重排序失败")
                 }

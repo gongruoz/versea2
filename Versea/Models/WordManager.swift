@@ -87,7 +87,7 @@ struct TogetherAIConnector {
         } catch {
             throw error  // 传递错误
         }
-        return "Unknown error"
+        return "" // if error
     }
 }
 

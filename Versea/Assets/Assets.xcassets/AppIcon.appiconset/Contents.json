@@ -1,6 +1,7 @@
 {
   "images" : [
     {
+      "filename" : "luminos_icon2.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
