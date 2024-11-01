@@ -19,25 +19,21 @@ class RegionManager: ObservableObject {
 
     
     init() {
-        let images = generateImagesConcurrently(count: 32)
-        if images.count > 0 {
-            for x in 0..<3 {
-                for y in 0..<3 {
-                    var blocks: [Block] = []
-                    for j in 0..<8 {
-                        for k in 0..<4 {
-                            let position = (x: j, y: k)
-                            let randomColor = Color.randomCustomColor()
-                            let id = "\(x)\(y)-\(j)\(k)"
-                            let page_index = "\(x)-\(y)"
-                            let randomIndex = Int(arc4random_uniform(UInt32(images.count)))
-                            let newBlock = Block(id: id, page_index: page_index, position: position,
-                                                 backgroundColor: randomColor, noiseImage: images[randomIndex] ?? UIImage())
-                            blocks.append(newBlock)
-                        }
+        for x in 0..<3 {
+            for y in 0..<3 {
+                var blocks: [Block] = []
+                for j in 0..<8 {
+                    for k in 0..<4 {
+                        let position = (x: j, y: k)
+                        let id = "\(x)\(y)-\(j)\(k)"
+                        let page_index = "\(x)-\(y)"
+                        
+                        // Create a block without any specific image
+                        let newBlock = Block(id: id, page_index: page_index, position: position)
+                        blocks.append(newBlock)
                     }
-                    allBlocks["\(x)-\(y)"] = blocks
                 }
+                allBlocks["\(x)-\(y)"] = blocks
             }
         }
     }
@@ -49,7 +45,6 @@ class RegionManager: ObservableObject {
              let word = generateRandomWord()
              self.initWordIdex = Int(arc4random_uniform(UInt32(11))) + 10
              allBlocks[page_index]?[self.initWordIdex ].text = word
-             allBlocks[page_index]?[self.initWordIdex ].backgroundColor = Color.randomCustomColor()
              allBlocks = allBlocks // 重新赋值字典
             
              // 生成额外五个
@@ -73,10 +68,8 @@ class RegionManager: ObservableObject {
             for index in randomIndices {
                 // 为每个索引生成一个新的单词和颜色
                 let word = generateRandomWord()
-                let color = Color.randomCustomColor()
                 // 更新对应索引的单词和颜色
                 allBlocks[page_index]![index].text = word
-                allBlocks[page_index]![index].backgroundColor = color
             }
             allBlocks = allBlocks // 重新赋值字典
         }
@@ -98,40 +91,19 @@ class RegionManager: ObservableObject {
             for index in randomIndices {
                 // 为每个索引生成一个新的单词和颜色
                 let word = generateRandomWord()
-                let color = Color.randomCustomColor()
                 // 更新对应索引的单词和颜色
                 allBlocks[page_index]![index].text = word
-                allBlocks[page_index]![index].backgroundColor = color
             }
             allBlocks = allBlocks // 重新赋值字典
         }
     }
     
     
-    // 异步随机生成
-    func generateImagesConcurrently(count: Int) -> [UIImage?] {
-        let dispatchGroup = DispatchGroup()
-        var generatedImages = [UIImage?]()
-        
-        for _ in 0..<count {
-            dispatchGroup.enter()
-            DispatchQueue.global(qos:.userInitiated).async {
-                if let image = generateNoiseImage() {
-                    generatedImages.append(image)
-                }
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.wait()
-        return generatedImages
-    }
 
-    func update(for page_index: String, blockID: String, newWord: String, newColor: Color) {
+    func update(for page_index: String, blockID: String, newWord: String) {
         if let blockArray = allBlocks[page_index] {
             for blockObject in blockArray {
                 if blockObject.id == blockID {
-                    blockObject.backgroundColor = newColor
                     blockObject.text = newWord
                     break
                 }
@@ -164,10 +136,9 @@ class RegionManager: ObservableObject {
                             randomWord = ""
                         }
                         
-                        let randomColor = Color.randomCustomColor()
 
                         // 更新方块的文字和背景颜色
-                        self.update(for: block.page_index, blockID: block.id, newWord: randomWord, newColor: randomColor)
+                        self.update(for: block.page_index, blockID: block.id, newWord: randomWord)
                     }
                 }
             }

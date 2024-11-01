@@ -39,7 +39,7 @@ class WordManager {
         let wordsArray = cleanedPhrase
             .components(separatedBy: .whitespacesAndNewlines)
             .filter { !$0.isEmpty } // 移除空的元素
-            .map { $0.uppercased() }
+            .map { $0.lowercased() }
         
         return wordsArray
     }

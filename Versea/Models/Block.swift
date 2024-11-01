@@ -22,29 +22,28 @@ class Block: Identifiable, ObservableObject, Equatable {
     @Published var isFlashing: Bool = true // 点击之后会被设置成 false
     var index: Int = 0
 
-    var noiseImage: UIImage
+//    var noiseImage: UIImage
     @Published var text: String?
-    @Published var backgroundColor: Color
+//    @Published var backgroundColor: Color
 
-    init(id: String, page_index: String, position: (x: Int, y: Int), text: String? = nil, backgroundColor: Color, noiseImage: UIImage) {
+    init(id: String, page_index: String, position: (x: Int, y: Int), text: String? = nil) {
         self.id = id
         self.page_index = page_index
         self.position = position
         self.text = text
-        self.backgroundColor = backgroundColor
-        self.noiseImage = noiseImage
+//        self.backgroundColor = backgroundColor
+//        self.noiseImage = noiseImage
     }
 
     static func == (lhs: Block, rhs: Block) -> Bool {
           return lhs.id == rhs.id &&
                  lhs.page_index == rhs.page_index &&
                  lhs.position == rhs.position &&
-                 lhs.backgroundColor == rhs.backgroundColor &&
-                 lhs.noiseImage == rhs.noiseImage &&
+//                 lhs.noiseImage == rhs.noiseImage &&
                  lhs.text == rhs.text
       }
     
     var description: String {
-        return "Block(id: \(id), position: (\(position.x), \(position.y)), text: \(text ?? "nil"), isFlashing: \(isFlashing), backgroundColor: \(backgroundColor))"
+        return "Block(id: \(id), position: (\(position.x), \(position.y)), text: \(text ?? "nil"), isFlashing: \(isFlashing))"
     }
 }
