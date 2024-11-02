@@ -2,20 +2,20 @@ import SwiftUI
 
 struct CanvasView: View {
     
-  var body: some View {
-    Infinite4Pager(
-      initialHorizontalPage: 3,
-      initialVerticalPage: 3,
-      totalHorizontalPage: nil,
-      totalVerticalPage: nil,
-      enableClipped: false,
-      enablePageVisibility: false,
-      getPage: { h, v in
-          PageView(h: h, v: v)
-      }
-    )
-    .ignoresSafeArea()
-  }
+    var body: some View {
+        Infinite4Pager(
+            initialHorizontalPage: 3,
+            initialVerticalPage: 3,
+            totalHorizontalPage: nil,
+            totalVerticalPage: nil,
+            enableClipped: false,
+            enablePageVisibility: false,
+            getPage: { h, v in
+                PageView(h: h, v: v)
+            }
+        )
+        .ignoresSafeArea()
+    }
 }
 
 struct PageView: View {
@@ -26,14 +26,11 @@ struct PageView: View {
     @Environment(\.pagerCurrentPage) var mainPage
     @State var isCurrent = false
     @State var percent: Double = 0
-//    var bigNoise: UIImage = generateNoiseImage(w: 50, h: 60, whiten_factor: 0.99, fine_factor: 0.001) ?? UIImage() // fixed
-    var smallNoise: UIImage = generateNoiseImage(w: 1000, h: 1000, whiten_factor: 0.99, fine_factor: 0.001) ?? UIImage() // fixed
-    var denseNoise: UIImage = generateNoiseImage(w: 500, h: 500, whiten_factor: 0.99, fine_factor: 0.0001) ?? UIImage() // fixed
-
+    var smallNoise: UIImage = generateNoiseImage(w: 1000, h: 1000, whiten_factor: 0.99, fine_factor: 0.001) ?? UIImage()
+    var denseNoise: UIImage = generateNoiseImage(w: 500, h: 500, whiten_factor: 0.99, fine_factor: 0.0001) ?? UIImage()
 
     var body: some View {
         VStack {
-        
             Color.clear
                 .overlay(
                     GeometryReader { geometry in
@@ -41,12 +38,13 @@ struct PageView: View {
                         let blockWidth = geometry.size.width / CGFloat(gridSize.width)
                         let blockHeight = geometry.size.height / CGFloat(gridSize.height)
                         let key = CanvasViewModel.shared.getIndex(h: h, v: v)
+                        
                         if let blocks = regionManager.allBlocks[key] {
                             let columns = Array(repeating: GridItem(.fixed(blockWidth), spacing: 0), count: Int(gridSize.width))
                             ZStack {
                                 LazyVGrid(columns: columns, spacing: 0) {
-                                    ForEach(blocks, id: \.id) { block in
-                                        BlockView(word: .constant(block.text ?? ""), block: block)
+                                    ForEach(blocks.indices, id: \.self) { index in
+                                        BlockView(word: .constant(blocks[index].text ?? ""), block: blocks[index])
                                             .frame(width: blockWidth, height: blockHeight)
                                     }
                                 }
@@ -56,27 +54,22 @@ struct PageView: View {
                                     .resizable()
                                     .scaledToFill()
                                     .frame(width: geometry.size.width, height: geometry.size.height)
-                                    .opacity(0.1) // fixed
+                                    .opacity(0.1)
                                 
                                 Image(uiImage: smallNoise)
                                     .resizable()
                                     .scaledToFill()
                                     .frame(width: geometry.size.width, height: geometry.size.height)
-                                    .opacity(0.25) // fixed
-                                
+                                    .opacity(0.25)
                             }
-                            
                             .background(Color.black)
                         }
                     }
                 )
                 .onPageVisible { percent in
-                    if let percent { // 加载百分比
-                        // 页面出现的时候，需要做数据处理操作
+                    if let percent {
                         self.percent = percent
-                        // 更新当前页面索引
                         CanvasViewModel.shared.updateCurrentMainPage(horizontal: h, vertical: v)
-                        
                     }
                 }
                 .onAppear {
@@ -86,26 +79,16 @@ struct PageView: View {
                     RegionManager.shared.reorderCurrentPage()
                 }
                 .task(id: mainPage) {
-                    if let mainPage {
-                        if mainPage.horizontal == h, mainPage.vertical == v {
-                            isCurrent = true
-                            if mainPage.horizontal % 3 == 0 && mainPage.vertical % 3 == 0 {
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                                    regionManager.generateFirstBlockWord()
-                                }
+                    if let mainPage, mainPage.horizontal == h, mainPage.vertical == v {
+                        isCurrent = true
+                        if mainPage.horizontal % 3 == 0 && mainPage.vertical % 3 == 0 {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                regionManager.generateFirstBlockWord()
                             }
                         }
                     }
                 }
                 .clipped()
-                
-                
-            
         }
     }
-    
-    
 }
-
-
-

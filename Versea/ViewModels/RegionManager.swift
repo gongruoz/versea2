@@ -19,24 +19,33 @@ class RegionManager: ObservableObject {
 
     
     init() {
-        for x in 0..<3 {
-            for y in 0..<3 {
-                var blocks: [Block] = []
-                for j in 0..<8 {
-                    for k in 0..<4 {
-                        let position = (x: j, y: k)
-                        let id = "\(x)\(y)-\(j)\(k)"
-                        let page_index = "\(x)-\(y)"
-                        
-                        // Create a block without any specific image
-                        let newBlock = Block(id: id, page_index: page_index, position: position)
-                        blocks.append(newBlock)
+            var allBlocksList: [Block] = []
+            
+            for x in 0..<3 {
+                for y in 0..<3 {
+                    var blocks: [Block] = []
+                    for j in 0..<8 {
+                        for k in 0..<4 {
+                            let position = (x: j, y: k)
+                            let id = "\(x)\(y)-\(j)\(k)"
+                            let page_index = "\(x)-\(y)"
+                            
+                            let newBlock = Block(id: id, page_index: page_index, position: position)
+                            blocks.append(newBlock)
+                            allBlocksList.append(newBlock) // Add block to global list for selecting exit
+                        }
                     }
+                    
+                    allBlocks["\(x)-\(y)"] = blocks
                 }
-                allBlocks["\(x)-\(y)"] = blocks
+            }
+            
+            // Randomly select a single exit block from all blocks
+            if let exitBlock = allBlocksList.randomElement() {
+                exitBlock.isExitButton = true
             }
         }
-    }
+    
     
     // 生成初始索引
     func generateFirstBlockWord(page_index: String = "0-0", count: Int = 1) {

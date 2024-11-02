@@ -21,18 +21,15 @@ class Block: Identifiable, ObservableObject, Equatable {
     var position: (x: Int, y: Int)
     @Published var isFlashing: Bool = true // 点击之后会被设置成 false
     var index: Int = 0
-
-//    var noiseImage: UIImage
     @Published var text: String?
-//    @Published var backgroundColor: Color
+    @Published var isExitButton = false // New property for exit button
 
+    
     init(id: String, page_index: String, position: (x: Int, y: Int), text: String? = nil) {
         self.id = id
         self.page_index = page_index
         self.position = position
         self.text = text
-//        self.backgroundColor = backgroundColor
-//        self.noiseImage = noiseImage
     }
 
     static func == (lhs: Block, rhs: Block) -> Bool {

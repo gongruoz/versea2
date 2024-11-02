@@ -18,6 +18,7 @@
 		3FA0749F2C973993002376FB /* BlockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA0749E2C973992002376FB /* BlockView.swift */; };
 		3FA074A32C9739F9002376FB /* LLMAPIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA074A22C9739F9002376FB /* LLMAPIManager.swift */; };
 		3FD8A0722C9C9C29009DB421 /* PixelifySans-VariableFont_wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3FD8A0712C9C9C29009DB421 /* PixelifySans-VariableFont_wght.ttf */; };
+		3FFAA1DC2CD690CB000C86F4 /* IMFellDWPica-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3FFAA1DB2CD690CB000C86F4 /* IMFellDWPica-Regular.ttf */; };
 		D70744292CBD28D70077A61D /* Block.swift in Sources */ = {isa = PBXBuildFile; fileRef = D70744262CBD28D70077A61D /* Block.swift */; };
 		D707442A2CBD28D70077A61D /* RegionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D70744272CBD28D70077A61D /* RegionManager.swift */; };
 		D707442F2CBD4D970077A61D /* SwiftUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = D707442B2CBD4D970077A61D /* SwiftUI.swift */; };
@@ -39,6 +40,7 @@
 		3FA074A22C9739F9002376FB /* LLMAPIManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMAPIManager.swift; sourceTree = "<group>"; };
 		3FD8A06F2C9C97E3009DB421 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		3FD8A0712C9C9C29009DB421 /* PixelifySans-VariableFont_wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "PixelifySans-VariableFont_wght.ttf"; path = "Versea/Preview Content/Preview Assets.xcassets/PixelifySans-VariableFont_wght.ttf"; sourceTree = SOURCE_ROOT; };
+		3FFAA1DB2CD690CB000C86F4 /* IMFellDWPica-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "IMFellDWPica-Regular.ttf"; sourceTree = "<group>"; };
 		D70744262CBD28D70077A61D /* Block.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Block.swift; sourceTree = "<group>"; };
 		D70744272CBD28D70077A61D /* RegionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RegionManager.swift; sourceTree = "<group>"; };
 		D707442B2CBD4D970077A61D /* SwiftUI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftUI.swift; sourceTree = "<group>"; };
@@ -60,6 +62,7 @@
 		3F5A10912CA956FD00D41671 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				D70744272CBD28D70077A61D /* RegionManager.swift */,
 				3F5A108F2CA956DD00D41671 /* CanvasViewModel.swift */,
 			);
 			path = ViewModels;
@@ -89,9 +92,7 @@
 		3F5A10942CA9576500D41671 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				3F0BE9262CCB805500EEB4A0 /* WordManager.swift */,
 				D70744262CBD28D70077A61D /* Block.swift */,
-				D70744272CBD28D70077A61D /* RegionManager.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -120,6 +121,7 @@
 				3F5A10932CA9575000D41671 /* Views */,
 				3F5A10942CA9576500D41671 /* Models */,
 				3F5A10912CA956FD00D41671 /* ViewModels */,
+				3FFAA1DA2CD68F97000C86F4 /* Network */,
 				3F5A10922CA9572500D41671 /* Utilities */,
 				3FD8A0702C9C9BDD009DB421 /* Assets */,
 				3FA074962C9737BF002376FB /* Preview Content */,
@@ -140,8 +142,17 @@
 			children = (
 				3FD8A0712C9C9C29009DB421 /* PixelifySans-VariableFont_wght.ttf */,
 				3FA074942C9737BF002376FB /* Assets.xcassets */,
+				3FFAA1DB2CD690CB000C86F4 /* IMFellDWPica-Regular.ttf */,
 			);
 			path = Assets;
+			sourceTree = "<group>";
+		};
+		3FFAA1DA2CD68F97000C86F4 /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				3F0BE9262CCB805500EEB4A0 /* WordManager.swift */,
+			);
+			path = Network;
 			sourceTree = "<group>";
 		};
 		D707442C2CBD4D970077A61D /* Helper */ = {
@@ -219,6 +230,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3FFAA1DC2CD690CB000C86F4 /* IMFellDWPica-Regular.ttf in Resources */,
 				3FA074982C9737BF002376FB /* Preview Assets.xcassets in Resources */,
 				3FA074952C9737BF002376FB /* Assets.xcassets in Resources */,
 				3FD8A0722C9C9C29009DB421 /* PixelifySans-VariableFont_wght.ttf in Resources */,
@@ -384,7 +396,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Versea/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Luminos;
+				INFOPLIST_KEY_CFBundleDisplayName = Lumino;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -418,7 +430,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Versea/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Luminos;
+				INFOPLIST_KEY_CFBundleDisplayName = Lumino;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
