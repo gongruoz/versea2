@@ -24,7 +24,7 @@ struct VerseaApp: App {
     
     var body: some Scene {
         WindowGroup {
-            CanvasView()
+            ContentView()
         }
     }
 }

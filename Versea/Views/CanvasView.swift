@@ -1,31 +1,78 @@
 import SwiftUI
 
 struct CanvasView: View {
+    // Tutorial messages
+    let tutorialMessages = [
+        "",
+        """
+        keep scrolling in any direction
+        to go back to the start
+        """,
+        "",
+        """
+        tap to select words
+        shake to reorder them
+        """,
+        "",
+        """
+        words reveal the path
+        towards the exit
+        """
+    ]
+    
+    @State private var currentMessageIndex = 0
+    @State private var isTutorialComplete = false
     
     var body: some View {
-        Infinite4Pager(
-            initialHorizontalPage: 3,
-            initialVerticalPage: 3,
-            totalHorizontalPage: nil,
-            totalVerticalPage: nil,
-            enableClipped: false,
-            enablePageVisibility: false,
-            getPage: { h, v in
-                PageView(h: h, v: v)
+        ZStack {
+            // Main content
+            Infinite4Pager(
+                initialHorizontalPage: 3,
+                initialVerticalPage: 3,
+                totalHorizontalPage: nil,
+                totalVerticalPage: nil,
+                enableClipped: false,
+                enablePageVisibility: false,
+                getPage: { h, v in
+                    PageView(h: h, v: v)
+                }
+            )
+            .ignoresSafeArea()
+            
+            // Tutorial Overlay
+            if !isTutorialComplete {
+                Text(tutorialMessages[currentMessageIndex])
+                    .font(.custom("IM FELL DW Pica", size: 24))
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(.white)
+                    .padding()
+                    .onAppear {
+                        startTutorial()
+                    }
             }
-        )
-        .ignoresSafeArea()
+        }
+    }
+    
+    // Timer to iterate through tutorial messages
+    func startTutorial() {
+        Timer.scheduledTimer(withTimeInterval: 4.0, repeats: true) { timer in
+            if currentMessageIndex < tutorialMessages.count - 1 {
+                currentMessageIndex += 1
+            } else {
+                isTutorialComplete = true
+                timer.invalidate()
+            }
+        }
     }
 }
 
 struct PageView: View {
-    
     let h: Int
     let v: Int
     @ObservedObject var regionManager = RegionManager.shared
     @Environment(\.pagerCurrentPage) var mainPage
-    @State var isCurrent = false
-    @State var percent: Double = 0
+    @State private var isCurrent = false
+    @State private var percent: Double = 0
     var smallNoise: UIImage = generateNoiseImage(w: 1000, h: 1000, whiten_factor: 0.99, fine_factor: 0.001) ?? UIImage()
     var denseNoise: UIImage = generateNoiseImage(w: 500, h: 500, whiten_factor: 0.99, fine_factor: 0.0001) ?? UIImage()
 

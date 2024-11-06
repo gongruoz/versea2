@@ -9,6 +9,7 @@ struct BlockView: View {
     @State private var isVisible = false // Control opacity of shimmer behind flashing texts
     @State private var isTextVisible = false // State variable to control opacity of text
     @State private var animationDuration: Double = Double.random(in: 3...4)
+    @State private var showScreenshot = false // State variable to show screenshot modal
 
     var body: some View {
         ZStack {
@@ -18,10 +19,8 @@ struct BlockView: View {
                     .foregroundColor(.red)
                     .multilineTextAlignment(.center)
                     .font(.custom("IM FELL DW Pica", size: 18))
-
                     .onTapGesture {
-                        // Add exit action here, e.g., navigate or close a modal
-                        exitApp()
+                        showScreenshot = true // Show the screenshot modal
                     }
             } else {
                 if !block.isFlashing {
@@ -37,7 +36,7 @@ struct BlockView: View {
                         .padding(3)
                         .blur(radius: 8)
                 }
-                
+
                 if block.isFlashing && block.text != "" {
                     RoundedRectangle(cornerRadius: 25, style: .continuous)
                         .fill(
@@ -57,7 +56,7 @@ struct BlockView: View {
                             }
                         }
                 }
-                
+
                 Text(word)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .foregroundColor(.white)
@@ -72,8 +71,7 @@ struct BlockView: View {
                                 isTextVisible.toggle()
                             }
                         } else {
-                            // Ensure isTextVisible is true when not flashing to show it fully
-                            isTextVisible = true
+                            isTextVisible = true // Ensure isTextVisible is true when not flashing to show it fully
                         }
                     }
             }
@@ -84,10 +82,22 @@ struct BlockView: View {
                 block.isFlashing.toggle()
             }
         }
+        // Present Screenshot view as a sheet when showScreenshot is true
+        .sheet(isPresented: $showScreenshot) {
+            ScrollView {
+                Screenshot(points: generatePoints(), wordsArr: generateWordsArray())
+            }
+        }
     }
     
-    func exitApp() {
-        // Your exit logic here, e.g., dismiss a view or trigger navigation
-        print("exit")
+    // Helper functions to be removed later
+    func generatePoints() -> [[Point]] {
+        // Example function to generate points, customize as needed
+        [generateRandomPoints(), generateRandomPoints(), generateRandomPoints(), generateRandomPoints()]
+    }
+    
+    func generateWordsArray() -> [String] {
+        // Example function to generate words array, customize as needed
+        ["Hello", "SwiftUI", "Screenshot", "Test"]
     }
 }
