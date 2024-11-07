@@ -15,8 +15,7 @@ class RegionManager: ObservableObject {
     var timer: Timer? // 跟踪定时器的引用
     
     // 用于存储每个页面的诗句
-    @Published var orderedPoem: [(String, [String])] = []
-
+    @Published var orderedPoem: [(String, [(Int, Int)], [String])] = []
     
     init() {
             var allBlocksList: [Block] = []
@@ -165,7 +164,6 @@ class RegionManager: ObservableObject {
         
     
     func reorderCurrentPage() {
-        // 获取当前页面的 `page_index`
         guard let mainPage = CanvasViewModel.shared.currentMainPage else {
             print("无法获取当前页面")
             return
@@ -173,52 +171,53 @@ class RegionManager: ObservableObject {
         
         let pageIndex = CanvasViewModel.shared.getIndex(h: mainPage.horizontal, v: mainPage.vertical)
         
-        // 获取当前页面的 `blocks`，并筛选出 `isFlashing = false` 的 `blocks`
+        // Get the blocks for the current page and filter non-flashing blocks
         guard let blocks = allBlocks[pageIndex] else {
             print("未找到该页面的 blocks")
             return
         }
         
-        // 找到 `isFlashing = false` 的 blocks
-        let nonFlashingBlocks = blocks.filter { !$0.isFlashing }
+        let nonFlashingBlocks = blocks.enumerated().filter { !$0.element.isFlashing }
+        var textsToReorder: [String] = []
+        var blockIds: [String] = []
+        var blockPositions: [(Int, Int)] = [] // Store positions here
         
-        // 收集这些 blocks 的文本内容和 ID
-        var textsToReorder = [String]()
-        var blockIds = [String]()
-        
-        for block in nonFlashingBlocks {
+        for (_, block) in nonFlashingBlocks {
             if let text = block.text {
                 textsToReorder.append(text)
                 blockIds.append(block.id)
+                blockPositions.append(block.position) // Add each block's position
             }
         }
         
-        // 调用 LLM API 重新排序文本
-        if textsToReorder != [] {
-            Task {
-                if let reorderedText = await reorderTextWithLLM(textsToReorder) {
-                    // 将新排序后的文本写回到相应的 blocks
+        // Call LLM API to reorder text
+        if !textsToReorder.isEmpty {
+            Task(priority: .userInitiated) {  // Explicitly specify Task return type as Void
+                let result: [String]? = await reorderTextWithLLM(textsToReorder)  // Explicit type for result
+                
+                if let reorderedText = result {
                     for (index, blockId) in blockIds.enumerated() {
                         if index < reorderedText.count {
                             updateBlockText(for: pageIndex, blockID: blockId, newText: reorderedText[index])
                         }
                     }
                     
-                    // 更新 orderedPoem 数组，使其与 reorderTextWithLLM 返回的顺序一致
                     DispatchQueue.main.async {
-                        // Check if orderedPoem already contains an entry for pageIndex
-                        if let index = self.orderedPoem.firstIndex(where: { $0.0 == pageIndex }) {
-                            // If reorderedText is different from the existing entry, update it
-                            if self.orderedPoem[index].1 != reorderedText {
-                                self.orderedPoem[index].1 = reorderedText
-                                print("Updated orderedPoem for pageIndex \(pageIndex) with new reorderedText: \(reorderedText)")
+                        let currentBlockPositions = blockPositions // Create a local copy
+                        let currentReorderedText = reorderedText   // Create a local copy
+
+                        if let existingIndex = self.orderedPoem.firstIndex(where: { $0.0 == pageIndex }) {
+                            // Update entry if it exists
+                            if !self.arePositionsEqual(self.orderedPoem[existingIndex].1, currentBlockPositions) || self.orderedPoem[existingIndex].2 != currentReorderedText {
+                                self.orderedPoem[existingIndex] = (pageIndex, currentBlockPositions, currentReorderedText)
+                                print("Updated orderedPoem for pageIndex \(pageIndex) with positions: \(currentBlockPositions) and reorderedText: \(currentReorderedText)")
                             } else {
-                                print("No update needed. reorderedText for pageIndex \(pageIndex) is already up-to-date.")
+                                print("No update needed. orderedPoem for pageIndex \(pageIndex) is already up-to-date.")
                             }
                         } else {
-                            // Append a new entry if pageIndex does not exist in orderedPoem
-                            self.orderedPoem.append((pageIndex, reorderedText))
-                            print("Added new entry to orderedPoem for pageIndex \(pageIndex) with reorderedText: \(reorderedText)")
+                            // Append new entry if it doesn't exist
+                            self.orderedPoem.append((pageIndex, currentBlockPositions, currentReorderedText))
+                            print("Added new entry to orderedPoem for pageIndex \(pageIndex) with positions: \(currentBlockPositions) and reorderedText: \(currentReorderedText)")
                         }
                         print("Current orderedPoem state: \(self.orderedPoem)")
                     }
@@ -229,6 +228,19 @@ class RegionManager: ObservableObject {
             }
         }
     }
+    
+    
+    // helper
+    func arePositionsEqual(_ lhs: [(Int, Int)], _ rhs: [(Int, Int)]) -> Bool {
+        guard lhs.count == rhs.count else { return false }
+        for (index, element) in lhs.enumerated() {
+            if element != rhs[index] {
+                return false
+            }
+        }
+        return true
+    }
+    
     
     // 更新指定 block 的文本
     func updateBlockText(for pageIndex: String, blockID: String, newText: String) {
@@ -273,14 +285,13 @@ class RegionManager: ObservableObject {
     func reorderTextWithLLM(_ texts: [String]) async -> [String]? {
         let prompt = "Reorder these words into a poetic line, with no new words added, return exactly the new line and nothing else: \(texts.joined(separator: " "))"
         
-        // 异步调用生成词库，等待其完成
+        // Assuming WordManager.shared.generateWordBank(from:) is an async function
         await WordManager.shared.generateWordBank(from: prompt)
         
-        // 从生成的词库中获取内容
-        let response = WordManager.shared.wordList
+        // Retrieve the response from the word list
+        let response: [String] = WordManager.shared.wordList
         
-        
-        // 返回内容，或者返回 nil 表示失败
+        // Return the response, or nil if empty
         return response.isEmpty ? nil : response
     }
     

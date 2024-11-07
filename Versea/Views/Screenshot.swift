@@ -1,49 +1,41 @@
-//
-//  Screenshot.swift
-//  Versea
-//
-//  Created by Hazel Gong on 2024/11/3.
-//
-
 import SwiftUI
 
 struct Screenshot: View {
-    var points: [[Point]] // 接收外部传入的点数组  上半部分
-    var wordsArr: [String] // 接收外部传入的单词数组 下半部分
+    var points: [[Point]] // Array of arrays for the top section
+    var wordsArr: [[String]] // Array of arrays for the bottom section
     
     @State private var image: UIImage?
     
-    
     var body: some View {
-        VStack() {
-            HStack(spacing: 3) { // 设置 HStack 的间距为 3
-                ForEach(0..<4) { _ in // 生成 5 个 PointsView
-                    PointsView(points: generateRandomPoints()) // 调用生成随机点的函数，或替换为外部传入的 points
-                        .frame(width: (UIScreen.main.bounds.width / 5), height: 100) // 设置宽度为屏幕宽度的 1/5
+        VStack {
+            // Display each set of points as a separate PointsView
+            HStack(spacing: 3) {
+                ForEach(points, id: \.self) { pointSet in
+                    PointsView(points: pointSet) // Pass each set of points to PointsView
+                        .frame(width: UIScreen.main.bounds.width / 5, height: 100)
                 }
             }
             
-            VStack(spacing: 10) { // 使用 VStack 垂直排列 WorldsView
-                ForEach(0..<4, id: \.self) { _ in
-                    //  替换成wordPoints
-                    WorldsView(points: generateWordRandomPoints(wordsArr: self.wordsArr)) // 生成多个 WorldsView ，
-                        .frame(height: 150) // 设置每个 WorldsView 的高度
-                        .background(Color.white) // 背景颜色
-                        .cornerRadius(10) // 圆角效果
-                        .shadow(radius: 5) // 添加阴影
+            // Display each set of words as a separate WorldsView
+            VStack(spacing: 10) {
+                ForEach(wordsArr, id: \.self) { wordArray in
+                    WorldsView(points: createWorldPoints(from: wordArray)) // Create WorldPoints for each set of words
+                        .frame(height: 150)
+                        .background(Color.white)
+                        .cornerRadius(10)
+                        .shadow(radius: 5)
                 }
             }
-            .padding() // 添加内边距
-            .background(Color.gray.opacity(0.1)) // 整个背景颜色
+            .padding()
+            .background(Color.gray.opacity(0.1))
         }
         
-        // 按钮用于截图
+        // Button to capture screenshot
         Button(action: {
             self.captureScreenshot()
         }) {
             Text("Save to Photos")
         }
-        
     }
     
     func captureScreenshot() {
@@ -52,15 +44,23 @@ struct Screenshot: View {
             UIApplication.shared.windows.first?.rootViewController?.view.drawHierarchy(in: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height), afterScreenUpdates: true)
         }
 
-        // 保存到相册   NSPhotoLibraryAddUsageDescription
+        // Save to photo album (requires NSPhotoLibraryAddUsageDescription permission)
         UIImageWriteToSavedPhotosAlbum(screenshot, nil, nil, nil)
-        
     }
     
+    // Helper function to create WorldPoints for a given array of words
+    func createWorldPoints(from words: [String]) -> [WorldPoint] {
+        // Example layout for placing each word in a circle arrangement; modify as needed
+        let radius: CGFloat = 60
+        let centerX = UIScreen.main.bounds.width / 2
+        let centerY: CGFloat = 75
+        
+        return words.enumerated().map { index, word in
+            // Distribute words in a circle around the center
+            let angle = CGFloat(index) * (.pi * 2 / CGFloat(words.count))
+            let x = centerX + radius * cos(angle)
+            let y = centerY + radius * sin(angle)
+            return WorldPoint(x: x, y: y, text: word)
+        }
+    }
 }
-
-
-
-
-
-

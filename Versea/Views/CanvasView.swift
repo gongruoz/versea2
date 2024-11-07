@@ -120,10 +120,10 @@ struct PageView: View {
                     }
                 }
                 .onAppear {
-                    RegionManager.shared.startAutoFlashing()
+                    regionManager.startAutoFlashing()
                 }
                 .onShake {
-                    RegionManager.shared.reorderCurrentPage()
+                    regionManager.reorderCurrentPage()
                 }
                 .task(id: mainPage) {
                     if let mainPage, mainPage.horizontal == h, mainPage.vertical == v {

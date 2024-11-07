@@ -85,19 +85,21 @@ struct BlockView: View {
         // Present Screenshot view as a sheet when showScreenshot is true
         .sheet(isPresented: $showScreenshot) {
             ScrollView {
-                Screenshot(points: generatePoints(), wordsArr: generateWordsArray())
+                let aggregatedPoints = RegionManager.shared.orderedPoem.map { convertToPoints(coordinates: $0.1) }
+                let aggregatedWordsArr = RegionManager.shared.orderedPoem.map { $0.2 }
+                
+                Screenshot(
+                    points: aggregatedPoints, // Pass the aggregated points array
+                    wordsArr: aggregatedWordsArr // Pass the aggregated wordsArr array
+                )
+                .padding()
             }
         }
     }
     
-    // Helper functions to be removed later
-    func generatePoints() -> [[Point]] {
-        // Example function to generate points, customize as needed
-        [generateRandomPoints(), generateRandomPoints(), generateRandomPoints(), generateRandomPoints()]
+    func convertToPoints(coordinates: [(Int, Int)]) -> [Point] {
+        return coordinates.map { Point(x: $0.0, y: $0.1) }
     }
     
-    func generateWordsArray() -> [String] {
-        // Example function to generate words array, customize as needed
-        ["Hello", "SwiftUI", "Screenshot", "Test"]
-    }
+    
 }
