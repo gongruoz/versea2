@@ -12,6 +12,11 @@
 		3F5A10962CA958B100D41671 /* ShakeDetectingWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F5A10952CA958B100D41671 /* ShakeDetectingWindow.swift */; };
 		3F5A10982CA958EE00D41671 /* ColorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F5A10972CA958EE00D41671 /* ColorExtension.swift */; };
 		3F5A109A2CA95E5200D41671 /* GenerateNoiseImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F5A10992CA95E5200D41671 /* GenerateNoiseImage.swift */; };
+		3F744F152CDD494C00D50497 /* poems.md in Resources */ = {isa = PBXBuildFile; fileRef = 3F744F142CDD494C00D50497 /* poems.md */; };
+		3F744F172CDD4A5300D50497 /* loadMarkdownContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F744F162CDD4A4B00D50497 /* loadMarkdownContent.swift */; };
+		3F744F1B2CDD4D1E00D50497 /* seeds.md in Resources */ = {isa = PBXBuildFile; fileRef = 3F744F1A2CDD4D1E00D50497 /* seeds.md */; };
+		3F8297022CDD039600472227 /* TogetherAIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F8296FF2CDD039600472227 /* TogetherAIService.swift */; };
+		3F8297032CDD039600472227 /* AIResponseModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F8296FE2CDD039600472227 /* AIResponseModels.swift */; };
 		3FA074912C9737BE002376FB /* VerseaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA074902C9737BE002376FB /* VerseaApp.swift */; };
 		3FA074952C9737BF002376FB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3FA074942C9737BF002376FB /* Assets.xcassets */; };
 		3FA074982C9737BF002376FB /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3FA074972C9737BF002376FB /* Preview Assets.xcassets */; };
@@ -35,6 +40,11 @@
 		3F5A10952CA958B100D41671 /* ShakeDetectingWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShakeDetectingWindow.swift; sourceTree = "<group>"; };
 		3F5A10972CA958EE00D41671 /* ColorExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ColorExtension.swift; path = ../Views/ColorExtension.swift; sourceTree = "<group>"; };
 		3F5A10992CA95E5200D41671 /* GenerateNoiseImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerateNoiseImage.swift; sourceTree = "<group>"; };
+		3F744F142CDD494C00D50497 /* poems.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = poems.md; sourceTree = "<group>"; };
+		3F744F162CDD4A4B00D50497 /* loadMarkdownContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = loadMarkdownContent.swift; sourceTree = "<group>"; };
+		3F744F1A2CDD4D1E00D50497 /* seeds.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = seeds.md; sourceTree = "<group>"; };
+		3F8296FE2CDD039600472227 /* AIResponseModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIResponseModels.swift; sourceTree = "<group>"; };
+		3F8296FF2CDD039600472227 /* TogetherAIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TogetherAIService.swift; sourceTree = "<group>"; };
 		3FA0748D2C9737BE002376FB /* Versea.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Versea.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3FA074902C9737BE002376FB /* VerseaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseaApp.swift; sourceTree = "<group>"; };
 		3FA074942C9737BF002376FB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -77,6 +87,7 @@
 		3F5A10922CA9572500D41671 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				3F744F162CDD4A4B00D50497 /* loadMarkdownContent.swift */,
 				D707442E2CBD4D970077A61D /* Infinite4Pager */,
 				3F5A10952CA958B100D41671 /* ShakeDetectingWindow.swift */,
 				3F5A10992CA95E5200D41671 /* GenerateNoiseImage.swift */,
@@ -106,6 +117,23 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
+		3F8297002CDD039600472227 /* AIService */ = {
+			isa = PBXGroup;
+			children = (
+				3F8296FE2CDD039600472227 /* AIResponseModels.swift */,
+				3F8296FF2CDD039600472227 /* TogetherAIService.swift */,
+			);
+			path = AIService;
+			sourceTree = "<group>";
+		};
+		3F8297012CDD039600472227 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				3F8297002CDD039600472227 /* AIService */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
 		3FA074842C9737BE002376FB = {
 			isa = PBXGroup;
 			children = (
@@ -130,6 +158,7 @@
 				3F5A10932CA9575000D41671 /* Views */,
 				3F5A10942CA9576500D41671 /* Models */,
 				3F5A10912CA956FD00D41671 /* ViewModels */,
+				3F8297012CDD039600472227 /* Services */,
 				3FFAA1DA2CD68F97000C86F4 /* Network */,
 				3F5A10922CA9572500D41671 /* Utilities */,
 				3FD8A0702C9C9BDD009DB421 /* Assets */,
@@ -141,6 +170,8 @@
 		3FA074962C9737BF002376FB /* Preview Content */ = {
 			isa = PBXGroup;
 			children = (
+				3F744F1A2CDD4D1E00D50497 /* seeds.md */,
+				3F744F142CDD494C00D50497 /* poems.md */,
 				3FA074972C9737BF002376FB /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
@@ -240,7 +271,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				3FFAA1DC2CD690CB000C86F4 /* IMFellDWPica-Regular.ttf in Resources */,
+				3F744F1B2CDD4D1E00D50497 /* seeds.md in Resources */,
 				3FA074982C9737BF002376FB /* Preview Assets.xcassets in Resources */,
+				3F744F152CDD494C00D50497 /* poems.md in Resources */,
 				3FA074952C9737BF002376FB /* Assets.xcassets in Resources */,
 				3FD8A0722C9C9C29009DB421 /* PixelifySans-VariableFont_wght.ttf in Resources */,
 			);
@@ -257,12 +290,15 @@
 				3FD525122CDB3635005037FA /* IntroView.swift in Sources */,
 				3FFAA1E02CD6ABD3000C86F4 /* Screenshot.swift in Sources */,
 				D70744292CBD28D70077A61D /* Block.swift in Sources */,
+				3F8297022CDD039600472227 /* TogetherAIService.swift in Sources */,
+				3F8297032CDD039600472227 /* AIResponseModels.swift in Sources */,
 				3F0BE9272CCB805A00EEB4A0 /* WordManager.swift in Sources */,
 				3F5A10982CA958EE00D41671 /* ColorExtension.swift in Sources */,
 				3F5A10962CA958B100D41671 /* ShakeDetectingWindow.swift in Sources */,
 				D70744322CBD4DF90077A61D /* CanvasView.swift in Sources */,
 				3FA0749F2C973993002376FB /* BlockView.swift in Sources */,
 				D70744302CBD4D970077A61D /* Infinite4Pager.swift in Sources */,
+				3F744F172CDD4A5300D50497 /* loadMarkdownContent.swift in Sources */,
 				3FA074A32C9739F9002376FB /* LLMAPIManager.swift in Sources */,
 				D707442F2CBD4D970077A61D /* SwiftUI.swift in Sources */,
 				D707442A2CBD28D70077A61D /* RegionManager.swift in Sources */,

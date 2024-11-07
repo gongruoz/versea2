@@ -11,48 +11,60 @@ import SwiftUI
 class RegionManager: ObservableObject {
     static let shared = RegionManager()
     @Published var allBlocks: [String: [Block]] = [:]
-    var initWordIdex: Int = -1  // 第一个单词的索引
+    var initWordIndex: Int = -1  // 第一个单词的索引
     var timer: Timer? // 跟踪定时器的引用
     
     // 用于存储每个页面的诗句
     @Published var orderedPoem: [(String, [(Int, Int)], [String])] = []
     
     init() {
-            var allBlocksList: [Block] = []
-            
-            for x in 0..<3 {
-                for y in 0..<3 {
-                    var blocks: [Block] = []
-                    for j in 0..<8 {
-                        for k in 0..<4 {
-                            let position = (x: j, y: k)
-                            let id = "\(x)\(y)-\(j)\(k)"
-                            let page_index = "\(x)-\(y)"
-                            
-                            let newBlock = Block(id: id, page_index: page_index, position: position)
-                            blocks.append(newBlock)
-                            allBlocksList.append(newBlock) // Add block to global list for selecting exit
-                        }
+        var allBlocksList: [Block] = []
+        
+        for x in 0..<3 {
+            for y in 0..<3 {
+                var blocks: [Block] = []
+                for j in 0..<8 {
+                    for k in 0..<4 {
+                        let position = (x: j, y: k)
+                        let id = "\(x)\(y)-\(j)\(k)"
+                        let page_index = "\(x)-\(y)"
+                        
+                        let newBlock = Block(id: id, page_index: page_index, position: position)
+                        blocks.append(newBlock)
+                        allBlocksList.append(newBlock)
                     }
-                    
-                    allBlocks["\(x)-\(y)"] = blocks
                 }
-            }
-            
-            // Randomly select a single exit block from all blocks
-            if let exitBlock = allBlocksList.randomElement() {
-                exitBlock.isExitButton = true
+                
+                allBlocks["\(x)-\(y)"] = blocks
             }
         }
+        
+        // 为第一个屏幕随机选择一个方块作为种子
+        if let firstScreenBlocks = allBlocks["0-0"] {
+            let randomIndex = Int.random(in: 0..<firstScreenBlocks.count)
+            let seedBlock = firstScreenBlocks[randomIndex]
+            seedBlock.isFlashing = false
+            seedBlock.text = WordManager.shared.getRandomSeed()
+            self.initWordIndex = randomIndex  // 记录初始方块的索引
+            
+            // 更新 allBlocks
+            allBlocks["0-0"] = firstScreenBlocks
+        }
+        
+        // 随机选择出口方块
+        if let exitBlock = allBlocksList.randomElement() {
+            exitBlock.isExitButton = true
+        }
+    }
     
     
     // 生成初始索引
     func generateFirstBlockWord(page_index: String = "0-0", count: Int = 1) {
-        if self.initWordIdex == -1 {
+        if self.initWordIndex == -1 {
             // 第一页的数据随机生成一个单词
              let word = generateRandomWord()
-             self.initWordIdex = Int(arc4random_uniform(UInt32(11))) + 10
-             allBlocks[page_index]?[self.initWordIdex ].text = word
+             self.initWordIndex = Int(arc4random_uniform(UInt32(11))) + 10
+             allBlocks[page_index]?[self.initWordIndex ].text = word
              allBlocks = allBlocks // 重新赋值字典
             
              // 生成额外五个
@@ -63,7 +75,7 @@ class RegionManager: ObservableObject {
     
     // 生成块
     func generateBlockWord(page_index: String = "0-0", count: Int = 5) {
-        let excludedIndex: Int? = self.initWordIdex
+        let excludedIndex: Int? = self.initWordIndex
         // 确保字典中有 "0-0" 键，并且对应的数组至少有 count 个元素
         if allBlocks[page_index]?.count ?? 0 >= count {
             // 随机生成五个不同的索引
@@ -86,11 +98,11 @@ class RegionManager: ObservableObject {
     
     // 生成不包含初始位置的块
     func generateBlockWordRandom(page_index: String = "0-0", count: Int = 5) {
-        let excludedIndex: Int? = self.initWordIdex
+        let excludedIndex: Int? = self.initWordIndex
         // 确保字典中有 "0-0" 键，并且对应的数组至少有 count 个元素
         if allBlocks[page_index]?.count ?? 0 >= count {
             // 随机生成五个不同的索引
-            let allIndices = Array(self.initWordIdex-10..<32-10)
+            let allIndices = Array(self.initWordIndex-10..<32-10)
             // 如果提供了 excludedIndex，则从所有索引中排除它
            let filteredIndices = excludedIndex.map { exclude in
                allIndices.filter { $0 != exclude }
@@ -109,16 +121,12 @@ class RegionManager: ObservableObject {
     
 
     func update(for page_index: String, blockID: String, newWord: String) {
-        if let blockArray = allBlocks[page_index] {
-            for blockObject in blockArray {
-                if blockObject.id == blockID {
-                    blockObject.text = newWord
-                    break
-                }
+        if let index = allBlocks[page_index]?.firstIndex(where: { $0.id == blockID }) {
+            DispatchQueue.main.async {
+                self.allBlocks[page_index]?[index].text = newWord
+                self.objectWillChange.send()
             }
-            allBlocks[page_index] = blockArray // 更新数组
         }
-        allBlocks = allBlocks // 重新赋值字典
     }
     
     
@@ -127,16 +135,16 @@ class RegionManager: ObservableObject {
         if timer != nil {
             return
         }
-
+        
         // 每 3 秒触发一次定时器
         timer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { [weak self] _ in
             guard let self = self else { return }
-
+            
             // 遍历所有页面的方块
             for (_, blocks) in self.allBlocks {
                 for block in blocks {
-                    if block.isFlashing == true {
-                        // 随机生成新的文字和颜色
+                    if block.isFlashing {
+                        // 随机生成新的文字
                         let randomWord: String
                         if arc4random_uniform(3) == 1 {
                             randomWord = self.generateRandomWord()
@@ -144,13 +152,18 @@ class RegionManager: ObservableObject {
                             randomWord = ""
                         }
                         
-
-                        // 更新方块的文字和背景颜色
+                        // 更新方块的文字
                         self.update(for: block.page_index, blockID: block.id, newWord: randomWord)
                     }
                 }
             }
         }
+    }
+    
+    // 清理定时器
+    deinit {
+        timer?.invalidate()
+        timer = nil
     }
     
     
@@ -223,7 +236,7 @@ class RegionManager: ObservableObject {
                     }
                     
                 } else {
-                    print("LLM 重排序失败")
+                    print("LLM 重���序失败")
                 }
             }
         }
@@ -286,7 +299,7 @@ class RegionManager: ObservableObject {
         let prompt = "Reorder these words into a poetic line, with no new words added, return exactly the new line and nothing else: \(texts.joined(separator: " "))"
         
         // Assuming WordManager.shared.generateWordBank(from:) is an async function
-        await WordManager.shared.generateWordBank(from: prompt)
+//        await WordManager.shared.generateWordBank(from: prompt)
         
         // Retrieve the response from the word list
         let response: [String] = WordManager.shared.wordList

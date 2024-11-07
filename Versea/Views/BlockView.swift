@@ -4,13 +4,12 @@ import CoreImage.CIFilterBuiltins
 
 struct BlockView: View {
     @Binding var word: String
-    var onChange: ((String, Color) -> Void)?
     @ObservedObject var block: Block
-    @State private var isVisible = false // Control opacity of shimmer behind flashing texts
-    @State private var isTextVisible = false // State variable to control opacity of text
-    @State private var animationDuration: Double = Double.random(in: 3...4)
-    @State private var showScreenshot = false // State variable to show screenshot modal
-
+    @State private var showScreenshot = false
+    @State private var isVisible = false
+    @State private var isTextVisible = false
+    private let animationDuration: Double = 2.0
+    
     var body: some View {
         ZStack {
             if block.isExitButton {
@@ -48,8 +47,8 @@ struct BlockView: View {
                             )
                         )
                         .padding(3)
-                        .opacity(isVisible ? 0.5 : 0.1) // Animation target
-                        .scaleEffect(isVisible ? 1.0 : 0.95) // Slight scaling effect to enhance the animation
+                        .opacity(isVisible ? 0.5 : 0.1)
+                        .scaleEffect(isVisible ? 1.0 : 0.95)
                         .onAppear {
                             withAnimation(Animation.easeInOut(duration: animationDuration).repeatForever(autoreverses: true)) {
                                 isVisible.toggle()
@@ -63,15 +62,14 @@ struct BlockView: View {
                     .multilineTextAlignment(.center)
                     .font(.custom("IM FELL DW Pica", size: block.isFlashing ? 18 : 24))
                     .padding(EdgeInsets(top: 2, leading: 2, bottom: 2, trailing: 2))
-                    .opacity(block.isFlashing ? (isTextVisible ? 0.5 : 0.1) : 1) // Use 1 opacity when not flashing
-                    .scaleEffect(block.isFlashing ? (isTextVisible ? 1.0 : 0.95) : 1.0) // Scale effect only when flashing
+                    .opacity(block.isFlashing ? (isTextVisible ? 0.5 : 0.1) : 1)
                     .onAppear {
                         if block.isFlashing {
                             withAnimation(Animation.easeInOut(duration: animationDuration).repeatForever(autoreverses: true)) {
                                 isTextVisible.toggle()
                             }
                         } else {
-                            isTextVisible = true // Ensure isTextVisible is true when not flashing to show it fully
+                            isTextVisible = true
                         }
                     }
             }
