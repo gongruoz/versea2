@@ -46,7 +46,7 @@ class RegionManager: ObservableObject {
             let randomIndex = Int.random(in: 0..<firstScreenBlocks.count)
             let seedBlock = firstScreenBlocks[randomIndex]
             seedBlock.isFlashing = false
-            seedBlock.text = WordManager.shared.getRandomSeed()
+            seedBlock.text = WordManager.shared.getRandomSeed()+"\n (0, 0)"
             self.initWordIndex = randomIndex  // 记录初始方块的索引
             
             // 更新 allBlocks
@@ -85,7 +85,7 @@ class RegionManager: ObservableObject {
         // 随机秒触发一次定时器，这个时常要比 blockview 的闪烁更久，留出充足时间让 blockview ease out
 //        let dt = Double.random(in: 5.5...6.5)
         
-        timer = Timer.scheduledTimer(withTimeInterval: 10.5, repeats: true) { [weak self] _ in
+        timer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { [weak self] _ in
             guard let self = self else { return }
             
             // 遍历所有页面

@@ -15,6 +15,7 @@
 		3F744F152CDD494C00D50497 /* poems.md in Resources */ = {isa = PBXBuildFile; fileRef = 3F744F142CDD494C00D50497 /* poems.md */; };
 		3F744F172CDD4A5300D50497 /* loadMarkdownContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F744F162CDD4A4B00D50497 /* loadMarkdownContent.swift */; };
 		3F744F1B2CDD4D1E00D50497 /* seeds.md in Resources */ = {isa = PBXBuildFile; fileRef = 3F744F1A2CDD4D1E00D50497 /* seeds.md */; };
+		3F7FDD8C2CDE863100A8EFEB /* GlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F7FDD8B2CDE862C00A8EFEB /* GlowView.swift */; };
 		3F8297022CDD039600472227 /* TogetherAIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F8296FF2CDD039600472227 /* TogetherAIService.swift */; };
 		3F8297032CDD039600472227 /* AIResponseModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F8296FE2CDD039600472227 /* AIResponseModels.swift */; };
 		3FA074912C9737BE002376FB /* VerseaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA074902C9737BE002376FB /* VerseaApp.swift */; };
@@ -43,6 +44,7 @@
 		3F744F142CDD494C00D50497 /* poems.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = poems.md; sourceTree = "<group>"; };
 		3F744F162CDD4A4B00D50497 /* loadMarkdownContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = loadMarkdownContent.swift; sourceTree = "<group>"; };
 		3F744F1A2CDD4D1E00D50497 /* seeds.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = seeds.md; sourceTree = "<group>"; };
+		3F7FDD8B2CDE862C00A8EFEB /* GlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlowView.swift; sourceTree = "<group>"; };
 		3F8296FE2CDD039600472227 /* AIResponseModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIResponseModels.swift; sourceTree = "<group>"; };
 		3F8296FF2CDD039600472227 /* TogetherAIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TogetherAIService.swift; sourceTree = "<group>"; };
 		3FA0748D2C9737BE002376FB /* Versea.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Versea.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -100,6 +102,7 @@
 		3F5A10932CA9575000D41671 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				3F7FDD8B2CDE862C00A8EFEB /* GlowView.swift */,
 				3FD525112CDB362B005037FA /* IntroView.swift */,
 				3FFAA1DF2CD6ABD0000C86F4 /* Screenshot.swift */,
 				3FFAA1DD2CD6ABB0000C86F4 /* PointsView.swift */,
@@ -303,6 +306,7 @@
 				D707442F2CBD4D970077A61D /* SwiftUI.swift in Sources */,
 				D707442A2CBD28D70077A61D /* RegionManager.swift in Sources */,
 				3FFAA1DE2CD6ABB5000C86F4 /* PointsView.swift in Sources */,
+				3F7FDD8C2CDE863100A8EFEB /* GlowView.swift in Sources */,
 				3FA074912C9737BE002376FB /* VerseaApp.swift in Sources */,
 				3F5A109A2CA95E5200D41671 /* GenerateNoiseImage.swift in Sources */,
 			);

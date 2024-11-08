@@ -103,15 +103,28 @@ struct Screenshot: View {
         
         }
     // 在视图之外建立 function
-    func captureScreenshot() {
-        let window = UIApplication.shared.windows.first { $0.isKeyWindow }
-        let renderer = UIGraphicsImageRenderer(bounds: window?.bounds ?? CGRect.zero)
-        
-        let screenshot = renderer.image { context in
-            window?.layer.render(in: context.cgContext)
+    private func captureScreenshot() {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = windowScene.windows.first
+        else {
+            print("Could not find window scene")
+            return
         }
         
-        UIImageWriteToSavedPhotosAlbum(screenshot, nil, nil, nil)
-        
+        DispatchQueue.main.async {
+            let bounds = window.bounds
+            UIGraphicsBeginImageContextWithOptions(bounds.size, false, 0.0)
+            
+            if let context = UIGraphicsGetCurrentContext() {
+                window.layer.render(in: context)
+                
+                if let image = UIGraphicsGetImageFromCurrentImageContext() {
+                    UIGraphicsEndImageContext()
+                    UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+                }
+            }
+            
+            UIGraphicsEndImageContext()
+        }
     }
 }
