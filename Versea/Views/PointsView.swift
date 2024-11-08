@@ -7,7 +7,7 @@ struct Point: Hashable {
 
 struct PointsView: View {
     var points: [Point]
-    let gridWidth: CGFloat = 7.5  // 使用固定的网格宽度
+    let gridWidth: CGFloat = UIScreen.main.bounds.width/25
     
     var body: some View {
         ZStack {
@@ -16,64 +16,68 @@ struct PointsView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: gridWidth, height: gridWidth)
-                    .opacity(0.6)
+                    .opacity(0.9)
                     .blur(radius: 1)
                     .position(
-                        x: CGFloat(point.x) * gridWidth + gridWidth/2,
-                        y: CGFloat(point.y) * gridWidth + gridWidth/2
+                        // the x and y are reversed to those of the indices
+                        x: CGFloat(point.y) * gridWidth + gridWidth/2,
+                        y: CGFloat(point.x) * gridWidth + gridWidth/2
                     )
             }
         }
-        .frame(width: gridWidth * 8, height: gridWidth * 4)  // 固定大小，与游戏中的 8x4 网格对应
+        .frame(width: gridWidth * 4, height: gridWidth * 8)  // 固定大小，与游戏中的 8x4 网格对应
     }
 }
 
-// 可选：添加网格背景
-struct GridBackground: View {
+
+struct GridView: View {
+    var words: [String]
+    
     var body: some View {
+        let columns = 4
+        let rows = Int(ceil(Double(words.count) / 2.0))
+        let totalCells = rows * columns
+        let positions = Array(0..<totalCells).shuffled().prefix(words.count)
+        
         GeometryReader { geometry in
-            Path { path in
-                // 绘制网格线
-                // ...
-            }
-            .stroke(Color.gray.opacity(0.2), lineWidth: 0.5)
-        }
-    }
-}
-
-struct WorldPoint: Hashable {
-    let x: CGFloat // Use CGFloat for precise control
-    let y: CGFloat
-    let text: String // Text attribute
-}
-
-struct WorldsView: View {
-    var points: [WorldPoint]
-
-    var body: some View {
-        ZStack {
-            Color.black
+            let cellWidth = geometry.size.width / CGFloat(columns)
+            let cellHeight = cellWidth
+            let totalHeight = cellHeight * CGFloat(rows)
             
-            ForEach(points, id: \.self) { point in
-                VStack {
-                    RoundedRectangle(cornerRadius: 25, style: .continuous)
+            ZStack {
+                ForEach(0..<words.count, id: \.self) { index in
+                    let position = positions[index]
+                    let x = position % columns
+                    let y = position / columns
+                    let randOpacity = Double.random(in: 0.1...0.4)
+                    
+                    RoundedRectangle(cornerRadius: cellHeight / 2, style: .continuous)
                         .fill(
                             RadialGradient(
-                                gradient: Gradient(colors: [Color.white.opacity(0.4), Color.white.opacity(0)]),
+                                gradient: Gradient(colors: [Color.white.opacity(randOpacity), Color.white.opacity(0)]),
                                 center: .center,
                                 startRadius: 0,
-                                endRadius: 50
+                                endRadius: cellHeight * 0.5
                             )
                         )
-                        .padding(3) // Add padding inside each rectangle
-                        .blur(radius: 3)
+                        .frame(width: cellWidth, height: cellHeight)
+                        .position(
+                            x: CGFloat(x) * cellWidth + cellWidth / 2,
+                            y: CGFloat(y) * cellHeight + cellHeight / 2
+                        )
+                    
+                    Text(words[index])
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                        .font(.custom("IM FELL DW Pica", size: 18))
+                        .frame(width: cellWidth, height: cellHeight)
+                        .position(
+                            x: CGFloat(x) * cellWidth + cellWidth / 2,
+                            y: CGFloat(y) * cellHeight + cellHeight / 2
+                        )
                 }
-                .position(x: point.x, y: point.y)
             }
         }
-        .frame(width: UIScreen.main.bounds.width, height: 150)
-        .background(Color.gray.opacity(0.02))
-        .padding(15) // Add outer padding to the whole ZStack
-        .offset(x: -10, y: 10) // Slight offset to adjust positioning
+        .frame(height: UIScreen.main.bounds.width / CGFloat(columns) * CGFloat(rows))  // 使用屏幕宽度计算高度
     }
 }
