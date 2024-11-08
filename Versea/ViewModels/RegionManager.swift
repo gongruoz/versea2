@@ -17,6 +17,8 @@ class RegionManager: ObservableObject {
     // 用于存储每个页面的诗句
     @Published var orderedPoem: [(String, [(Int, Int)], [String])] = []
     
+    private var isReordering = false  // 添加一个标志来追踪是否正在重排序
+    
     init() {
         var allBlocksList: [Block] = []
         
@@ -51,73 +53,17 @@ class RegionManager: ObservableObject {
             allBlocks["0-0"] = firstScreenBlocks
         }
         
-        // 随机选择出口方块
-        if let exitBlock = allBlocksList.randomElement() {
+        // 过滤掉不允许作为出口的页面上的方块
+        let forbiddenPages = ["0-0", "0-1", "0-2", "1-0", "2-0"]
+        let validExitBlocks = allBlocksList.filter { block in
+            !forbiddenPages.contains(block.page_index)
+        }
+        
+        // 从有效的方块中随机选择出口
+        if let exitBlock = validExitBlocks.randomElement() {
             exitBlock.isExitButton = true
         }
     }
-    
-    
-    // 生成初始索引
-    func generateFirstBlockWord(page_index: String = "0-0", count: Int = 1) {
-        if self.initWordIndex == -1 {
-            // 第一页的数据随机生成一个单词
-             let word = generateRandomWord()
-             self.initWordIndex = Int(arc4random_uniform(UInt32(11))) + 10
-             allBlocks[page_index]?[self.initWordIndex ].text = word
-             allBlocks = allBlocks // 重新赋值字典
-            
-             // 生成额外五个
-            generateBlockWordRandom()
-        }
-     }
-
-    
-    // 生成块
-    func generateBlockWord(page_index: String = "0-0", count: Int = 5) {
-        let excludedIndex: Int? = self.initWordIndex
-        // 确保字典中有 "0-0" 键，并且对应的数组至少有 count 个元素
-        if allBlocks[page_index]?.count ?? 0 >= count {
-            // 随机生成五个不同的索引
-            let allIndices = Array(0..<allBlocks.count-1)
-            // 如果提供了 excludedIndex，则从所有索引中排除它
-           let filteredIndices = excludedIndex.map { exclude in
-               allIndices.filter { $0 != exclude }
-           } ?? allIndices
-            let randomIndices = filteredIndices.shuffled().prefix(count)
-            for index in randomIndices {
-                // 为每个索引生成一个新的单词和颜色
-                let word = generateRandomWord()
-                // 更新对应索引的单词和颜色
-                allBlocks[page_index]![index].text = word
-            }
-            allBlocks = allBlocks // 重新赋值字典
-        }
-    }
-    
-    
-    // 生成不包含初始位置的块
-    func generateBlockWordRandom(page_index: String = "0-0", count: Int = 5) {
-        let excludedIndex: Int? = self.initWordIndex
-        // 确保字典中有 "0-0" 键，并且对应的数组至少有 count 个元素
-        if allBlocks[page_index]?.count ?? 0 >= count {
-            // 随机生成五个不同的索引
-            let allIndices = Array(self.initWordIndex-10..<32-10)
-            // 如果提供了 excludedIndex，则从所有索引中排除它
-           let filteredIndices = excludedIndex.map { exclude in
-               allIndices.filter { $0 != exclude }
-           } ?? allIndices
-            let randomIndices = filteredIndices.shuffled().prefix(count)
-            for index in randomIndices {
-                // 为每个索引生成一个新的单词和颜色
-                let word = generateRandomWord()
-                // 更新对应索引的单词和颜色
-                allBlocks[page_index]![index].text = word
-            }
-            allBlocks = allBlocks // 重新赋值字典
-        }
-    }
-    
     
 
     func update(for page_index: String, blockID: String, newWord: String) {
@@ -136,25 +82,34 @@ class RegionManager: ObservableObject {
             return
         }
         
-        // 每 3 秒触发一次定时器
-        timer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { [weak self] _ in
+        // 随机秒触发一次定时器，这个时常要比 blockview 的闪烁更久，留出充足时间让 blockview ease out
+        let dt = Double.random(in: 5.5...6.5)
+        timer = Timer.scheduledTimer(withTimeInterval: dt, repeats: true) { [weak self] _ in
             guard let self = self else { return }
             
-            // 遍历所有页面的方块
-            for (_, blocks) in self.allBlocks {
-                for block in blocks {
-                    if block.isFlashing {
-                        // 随机生成新的文字
-                        let randomWord: String
-                        if arc4random_uniform(3) == 1 {
-                            randomWord = self.generateRandomWord()
-                        } else {
-                            randomWord = ""
-                        }
-                        
-                        // 更新方块的文字
-                        self.update(for: block.page_index, blockID: block.id, newWord: randomWord)
+            // 遍历所有页面
+            for (pageIndex, blocks) in self.allBlocks {
+                // 获取可以闪烁的方块（isFlashing 为 true）
+                let flashingBlocks = blocks.filter { $0.isFlashing }
+                
+                // 计算要更新的方块数量（1/2）
+                let updateCount = max(1, flashingBlocks.count / 2)
+                
+                // 随机选择这些方块
+                let selectedBlocks = flashingBlocks.shuffled().prefix(updateCount)
+                
+                // 更新选中的方块
+                for block in selectedBlocks {
+                    // 随机生成新的文字
+                    let randomWord: String
+                    if arc4random_uniform(3) == 1 {
+                        randomWord = self.generateRandomWord()
+                    } else {
+                        randomWord = ""
                     }
+                    
+                    // 更新方块的文字
+                    self.update(for: block.page_index, blockID: block.id, newWord: randomWord)
                 }
             }
         }
@@ -177,68 +132,74 @@ class RegionManager: ObservableObject {
         
     
     func reorderCurrentPage() {
+        // 如果正在重排序，直接返回
+        guard !isReordering else { return }
+        
+        // 设置标志
+        isReordering = true
+        
+        // 1. 获取当前页面信息
         guard let mainPage = CanvasViewModel.shared.currentMainPage else {
-            print("无法获取当前页面")
+            isReordering = false
             return
         }
-        
         let pageIndex = CanvasViewModel.shared.getIndex(h: mainPage.horizontal, v: mainPage.vertical)
         
-        // Get the blocks for the current page and filter non-flashing blocks
-        guard let blocks = allBlocks[pageIndex] else {
-            print("未找到该页面的 blocks")
-            return
-        }
-        
+        // 2. 获取当前页面的所有非闪烁方块
+        guard let blocks = allBlocks[pageIndex] else { return }
         let nonFlashingBlocks = blocks.enumerated().filter { !$0.element.isFlashing }
+        
+        // 3. 收集需要重排序的信息
         var textsToReorder: [String] = []
         var blockIds: [String] = []
-        var blockPositions: [(Int, Int)] = [] // Store positions here
+        var blockPositions: [(Int, Int)] = []
         
         for (_, block) in nonFlashingBlocks {
             if let text = block.text {
                 textsToReorder.append(text)
                 blockIds.append(block.id)
-                blockPositions.append(block.position) // Add each block's position
+                blockPositions.append(block.position)
             }
         }
         
-        // Call LLM API to reorder text
+        // 4. 调用 LLM 重排序
         if !textsToReorder.isEmpty {
-            Task(priority: .userInitiated) {  // Explicitly specify Task return type as Void
-                let result: [String]? = await reorderTextWithLLM(textsToReorder)  // Explicit type for result
-                
-                if let reorderedText = result {
+            Task {
+                if let reorderedText = await reorderTextWithLLM(textsToReorder) {
+                    // 5. 更新方块文字
                     for (index, blockId) in blockIds.enumerated() {
                         if index < reorderedText.count {
                             updateBlockText(for: pageIndex, blockID: blockId, newText: reorderedText[index])
                         }
                     }
                     
+                    // 6. 更新 orderedPoem
                     DispatchQueue.main.async {
-                        let currentBlockPositions = blockPositions // Create a local copy
-                        let currentReorderedText = reorderedText   // Create a local copy
+                        let currentBlockPositions = blockPositions
+                        let currentReorderedText = reorderedText
 
                         if let existingIndex = self.orderedPoem.firstIndex(where: { $0.0 == pageIndex }) {
-                            // Update entry if it exists
-                            if !self.arePositionsEqual(self.orderedPoem[existingIndex].1, currentBlockPositions) || self.orderedPoem[existingIndex].2 != currentReorderedText {
+                            // 如果该页面已存在记录，检查是否需要更新
+                            if !self.arePositionsEqual(self.orderedPoem[existingIndex].1, currentBlockPositions) || 
+                               self.orderedPoem[existingIndex].2 != currentReorderedText {
+                                // 更新现有记录
                                 self.orderedPoem[existingIndex] = (pageIndex, currentBlockPositions, currentReorderedText)
-                                print("Updated orderedPoem for pageIndex \(pageIndex) with positions: \(currentBlockPositions) and reorderedText: \(currentReorderedText)")
-                            } else {
-                                print("No update needed. orderedPoem for pageIndex \(pageIndex) is already up-to-date.")
                             }
                         } else {
-                            // Append new entry if it doesn't exist
+                            // 如果是新页面，添加新记录
                             self.orderedPoem.append((pageIndex, currentBlockPositions, currentReorderedText))
-                            print("Added new entry to orderedPoem for pageIndex \(pageIndex) with positions: \(currentBlockPositions) and reorderedText: \(currentReorderedText)")
+                            print("ordered poem: \(self.orderedPoem)")
                         }
-                        print("Current orderedPoem state: \(self.orderedPoem)")
                     }
-                    
-                } else {
-                    print("LLM 重���序失败")
+                }
+                // 重置标志
+                DispatchQueue.main.async {
+                    self.isReordering = false
                 }
             }
+        } else {
+            // 如果没有文本需要重排序，也要重置标志
+            isReordering = false
         }
     }
     
@@ -279,33 +240,18 @@ class RegionManager: ObservableObject {
         
     }
     
-    // find out how many blocks have been fixed
-    func occupancyRate(for pageIndex: String) -> Double {
-        guard let blocks = allBlocks[pageIndex] else {
-            print("No blocks found for the specified page index.")
-            return 0.0
-        }
-        
-        let nonFlashingBlocks = blocks.filter { !$0.isFlashing }
-        let totalBlocks = blocks.count
-        
-        // Calculate the occupancy rate as a ratio of non-flashing blocks to total blocks
-        return totalBlocks > 0 ? Double(nonFlashingBlocks.count) / Double(totalBlocks) : 0.0
-    }
+
     
     
     // 使用 LLM API 重新排序文本
     func reorderTextWithLLM(_ texts: [String]) async -> [String]? {
-        let prompt = "Reorder these words into a poetic line, with no new words added, return exactly the new line and nothing else: \(texts.joined(separator: " "))"
-        
-        // Assuming WordManager.shared.generateWordBank(from:) is an async function
-//        await WordManager.shared.generateWordBank(from: prompt)
-        
-        // Retrieve the response from the word list
-        let response: [String] = WordManager.shared.wordList
-        
-        // Return the response, or nil if empty
-        return response.isEmpty ? nil : response
+        // 直接使用 WordManager 的 reorderWords 方法
+        if let reorderedWords = await WordManager.shared.reorderWords(texts) {
+            return reorderedWords
+        } else {
+            // 如果 API 调用失败，使用随机打乱作为后备方案
+            return texts.shuffled()
+        }
     }
     
     

@@ -7,22 +7,39 @@ struct Point: Hashable {
 
 struct PointsView: View {
     var points: [Point]
-
+    let gridWidth: CGFloat = 7.5  // 使用固定的网格宽度
+    
     var body: some View {
         ZStack {
             ForEach(points, id: \.self) { point in
-                Image("star") // Load star image
+                Image("star")
                     .resizable()
-                    .scaledToFit() // Keep aspect ratio
-                    .frame(width: 20, height: 20) // Set image size
-                    .position(x: CGFloat(point.x) * 20, y: CGFloat(point.y) * 20) // Scale or adjust position
+                    .scaledToFit()
+                    .frame(width: gridWidth, height: gridWidth)
+                    .opacity(0.6)
+                    .blur(radius: 1)
+                    .position(
+                        x: CGFloat(point.x) * gridWidth + gridWidth/2,
+                        y: CGFloat(point.y) * gridWidth + gridWidth/2
+                    )
             }
         }
-        .padding(10) // Add padding around the ZStack
-        .offset(x: 5, y: 5) // Slight offset to adjust positioning
+        .frame(width: gridWidth * 8, height: gridWidth * 4)  // 固定大小，与游戏中的 8x4 网格对应
     }
 }
 
+// 可选：添加网格背景
+struct GridBackground: View {
+    var body: some View {
+        GeometryReader { geometry in
+            Path { path in
+                // 绘制网格线
+                // ...
+            }
+            .stroke(Color.gray.opacity(0.2), lineWidth: 0.5)
+        }
+    }
+}
 
 struct WorldPoint: Hashable {
     let x: CGFloat // Use CGFloat for precise control
@@ -39,13 +56,13 @@ struct WorldsView: View {
             
             ForEach(points, id: \.self) { point in
                 VStack {
-                    RoundedRectangle(cornerRadius: 15, style: .continuous)
+                    RoundedRectangle(cornerRadius: 25, style: .continuous)
                         .fill(
                             RadialGradient(
                                 gradient: Gradient(colors: [Color.white.opacity(0.4), Color.white.opacity(0)]),
                                 center: .center,
                                 startRadius: 0,
-                                endRadius: 30
+                                endRadius: 50
                             )
                         )
                         .padding(3) // Add padding inside each rectangle

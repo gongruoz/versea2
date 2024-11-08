@@ -1,66 +1,91 @@
 import SwiftUI
 
 struct Screenshot: View {
-    var points: [[Point]] // Array of arrays for the top section
-    var wordsArr: [[String]] // Array of arrays for the bottom section
+    var points: [[Point]]
+    var wordsArr: [[String]]
     
     @State private var image: UIImage?
     
     var body: some View {
-        VStack {
-            // Display each set of points as a separate PointsView
-            HStack(spacing: 3) {
-                ForEach(points, id: \.self) { pointSet in
-                    PointsView(points: pointSet) // Pass each set of points to PointsView
-                        .frame(width: UIScreen.main.bounds.width / 5, height: 100)
+        VStack(spacing: 20) {
+            // 上半部分：轨迹缩略图容器
+            ZStack {
+                Rectangle()
+                    .fill(Color.black)
+                    .frame(height: 200)
+                
+                HStack(spacing: 40) {
+                    ForEach(0..<4, id: \.self) { index in
+                        if index < points.count {
+                            PointsView(points: points[index])
+                                .frame(width: 60, height: 120)
+                        }
+                    }
                 }
             }
+            .padding(.horizontal)
             
-            // Display each set of words as a separate WorldsView
+            // 下半部分：显示单词
             VStack(spacing: 10) {
                 ForEach(wordsArr, id: \.self) { wordArray in
-                    WorldsView(points: createWorldPoints(from: wordArray)) // Create WorldPoints for each set of words
+                    GridView(words: wordArray)
                         .frame(height: 150)
-                        .background(Color.white)
+                        .background(Color.black)
                         .cornerRadius(10)
                         .shadow(radius: 5)
                 }
             }
             .padding()
             .background(Color.gray.opacity(0.1))
-        }
-        
-        // Button to capture screenshot
-        Button(action: {
-            self.captureScreenshot()
-        }) {
-            Text("Save to Photos")
+            
+            Button(action: {
+                captureScreenshot()
+            }) {
+                Text("Save to Photos")
+                    .foregroundColor(.blue)
+            }
         }
     }
     
     func captureScreenshot() {
-        let renderer = UIGraphicsImageRenderer(size: CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
+        let window = UIApplication.shared.windows.first { $0.isKeyWindow }
+        let renderer = UIGraphicsImageRenderer(bounds: window?.bounds ?? CGRect.zero)
+        
         let screenshot = renderer.image { context in
-            UIApplication.shared.windows.first?.rootViewController?.view.drawHierarchy(in: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height), afterScreenUpdates: true)
+            window?.layer.render(in: context.cgContext)
         }
 
-        // Save to photo album (requires NSPhotoLibraryAddUsageDescription permission)
         UIImageWriteToSavedPhotosAlbum(screenshot, nil, nil, nil)
     }
+}
+
+struct GridView: View {
+    var words: [String]
     
-    // Helper function to create WorldPoints for a given array of words
-    func createWorldPoints(from words: [String]) -> [WorldPoint] {
-        // Example layout for placing each word in a circle arrangement; modify as needed
-        let radius: CGFloat = 60
-        let centerX = UIScreen.main.bounds.width / 2
-        let centerY: CGFloat = 75
+    var body: some View {
+        let columns = 4
+        let rows = Int(ceil(Double(words.count) / 2.0))
+        let totalCells = rows * columns
+        let positions = Array(0..<totalCells).shuffled().prefix(words.count)
         
-        return words.enumerated().map { index, word in
-            // Distribute words in a circle around the center
-            let angle = CGFloat(index) * (.pi * 2 / CGFloat(words.count))
-            let x = centerX + radius * cos(angle)
-            let y = centerY + radius * sin(angle)
-            return WorldPoint(x: x, y: y, text: word)
+        return GeometryReader { geometry in
+            let cellWidth = geometry.size.width / CGFloat(columns)
+            let cellHeight = geometry.size.height / CGFloat(rows)
+            
+            ZStack {
+                ForEach(0..<words.count, id: \.self) { index in
+                    let position = positions[index]
+                    let x = position % columns
+                    let y = position / columns
+                    
+                    Text(words[index])
+                        .foregroundColor(.white)
+                        .position(
+                            x: CGFloat(x) * cellWidth + cellWidth / 2,
+                            y: CGFloat(y) * cellHeight + cellHeight / 2
+                        )
+                }
+            }
         }
     }
 }

@@ -8,7 +8,7 @@ struct BlockView: View {
     @State private var showScreenshot = false
     @State private var isVisible = false
     @State private var isTextVisible = false
-    private let animationDuration: Double = 2.0
+    private let animationDuration: Double = Double.random(in: 3.0...4.5)
     
     var body: some View {
         ZStack {
@@ -19,14 +19,16 @@ struct BlockView: View {
                     .multilineTextAlignment(.center)
                     .font(.custom("IM FELL DW Pica", size: 18))
                     .onTapGesture {
-                        showScreenshot = true // Show the screenshot modal
+                        if !RegionManager.shared.orderedPoem.isEmpty {
+                            showScreenshot = true // Show the screenshot modal
+                        }
                     }
             } else {
                 if !block.isFlashing {
                     RoundedRectangle(cornerRadius: 25, style: .continuous)
                         .fill(
                             RadialGradient(
-                                gradient: Gradient(colors: [Color.white.opacity(0.6), Color.white.opacity(0)]),
+                                gradient: Gradient(colors: [Color.white.opacity(0.3), Color.white.opacity(0)]),
                                 center: .center,
                                 startRadius: 0,
                                 endRadius: 50
@@ -40,14 +42,14 @@ struct BlockView: View {
                     RoundedRectangle(cornerRadius: 25, style: .continuous)
                         .fill(
                             RadialGradient(
-                                gradient: Gradient(colors: [Color.white.opacity(0.6), Color.white.opacity(0)]),
+                                gradient: Gradient(colors: [Color.white.opacity(0.4), Color.white.opacity(0)]),
                                 center: .center,
                                 startRadius: 0,
                                 endRadius: 50
                             )
                         )
                         .padding(3)
-                        .opacity(isVisible ? 0.5 : 0.1)
+                        .opacity(isVisible ? 0.4 : 0.1)
                         .scaleEffect(isVisible ? 1.0 : 0.95)
                         .onAppear {
                             withAnimation(Animation.easeInOut(duration: animationDuration).repeatForever(autoreverses: true)) {
@@ -83,12 +85,9 @@ struct BlockView: View {
         // Present Screenshot view as a sheet when showScreenshot is true
         .sheet(isPresented: $showScreenshot) {
             ScrollView {
-                let aggregatedPoints = RegionManager.shared.orderedPoem.map { convertToPoints(coordinates: $0.1) }
-                let aggregatedWordsArr = RegionManager.shared.orderedPoem.map { $0.2 }
-                
                 Screenshot(
-                    points: aggregatedPoints, // Pass the aggregated points array
-                    wordsArr: aggregatedWordsArr // Pass the aggregated wordsArr array
+                    points: RegionManager.shared.orderedPoem.map { $0.1.map { Point(x: $0.0, y: $0.1) } },
+                    wordsArr: RegionManager.shared.orderedPoem.map { $0.2 }
                 )
                 .padding()
             }

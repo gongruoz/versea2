@@ -113,27 +113,27 @@ struct PageView: View {
                         }
                     }
                 )
+            // 为了 onshake 必须知道当前在哪个页面
                 .onPageVisible { percent in
                     if let percent {
                         self.percent = percent
                         CanvasViewModel.shared.updateCurrentMainPage(horizontal: h, vertical: v)
                     }
                 }
-                .onAppear {
-                    regionManager.startAutoFlashing()
-                }
-                .onShake {
-                    regionManager.reorderCurrentPage()
-                }
                 .task(id: mainPage) {
                     if let mainPage, mainPage.horizontal == h, mainPage.vertical == v {
                         isCurrent = true
-                        if mainPage.horizontal % 3 == 0 && mainPage.vertical % 3 == 0 {
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                                regionManager.generateFirstBlockWord()
-                            }
-                        }
+                        regionManager.startAutoFlashing()
+                    } else {
+                        isCurrent = false
                     }
+                }
+//
+//                .onAppear{
+//                    regionManager.startAutoFlashing()
+//                }
+                .onShake {
+                    regionManager.reorderCurrentPage()
                 }
                 .clipped()
         }

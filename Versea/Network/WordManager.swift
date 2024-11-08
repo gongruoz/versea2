@@ -16,13 +16,11 @@ class WordManager {
         // 加载主词库
         if let poems = loadMarkdownContent(from: "poems") {
             wordList = processPhrase(poems)
-            print("主词库加载完成: \(wordList)")
         }
         
         // 加载种子词库
         if let seeds = loadMarkdownContent(from: "seeds") {
             seedWords = processPhrase(seeds)
-            print("种子词库加载完成: \(seedWords)")
         }
     }
     
