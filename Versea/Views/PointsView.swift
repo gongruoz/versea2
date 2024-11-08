@@ -17,7 +17,7 @@ struct PointsView: View {
                     .scaledToFit()
                     .frame(width: gridWidth, height: gridWidth)
                     .opacity(0.9)
-                    .blur(radius: 1)
+//                    .blur(radius: 1)
                     .position(
                         // the x and y are reversed to those of the indices
                         x: CGFloat(point.y) * gridWidth + gridWidth/2,
@@ -49,7 +49,7 @@ struct GridView: View {
                     let position = positions[index]
                     let x = position % columns
                     let y = position / columns
-                    let randOpacity = Double.random(in: 0.1...0.4)
+                    let randOpacity = Double.random(in: 0.15...0.3)
                     
                     RoundedRectangle(cornerRadius: cellHeight / 2, style: .continuous)
                         .fill(
@@ -69,7 +69,7 @@ struct GridView: View {
                     Text(words[index])
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
-                        .font(.custom("IM FELL DW Pica", size: 18))
+                        .font(.custom("IM FELL DW Pica", size: 20))
                         .frame(width: cellWidth, height: cellHeight)
                         .position(
                             x: CGFloat(x) * cellWidth + cellWidth / 2,

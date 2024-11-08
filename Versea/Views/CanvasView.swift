@@ -134,6 +134,9 @@ struct PageView: View {
 //                }
                 .onShake {
                     regionManager.reorderCurrentPage()
+                    let impactFeedbackGenerator = UIImpactFeedbackGenerator(style: .heavy)
+                    impactFeedbackGenerator.prepare()
+                    impactFeedbackGenerator.impactOccurred()
                 }
                 .clipped()
         }

@@ -83,8 +83,9 @@ class RegionManager: ObservableObject {
         }
         
         // 随机秒触发一次定时器，这个时常要比 blockview 的闪烁更久，留出充足时间让 blockview ease out
-        let dt = Double.random(in: 5.5...6.5)
-        timer = Timer.scheduledTimer(withTimeInterval: dt, repeats: true) { [weak self] _ in
+//        let dt = Double.random(in: 5.5...6.5)
+        
+        timer = Timer.scheduledTimer(withTimeInterval: 10.5, repeats: true) { [weak self] _ in
             guard let self = self else { return }
             
             // 遍历所有页面
@@ -92,8 +93,8 @@ class RegionManager: ObservableObject {
                 // 获取可以闪烁的方块（isFlashing 为 true）
                 let flashingBlocks = blocks.filter { $0.isFlashing }
                 
-                // 计算要更新的方块数量（1/2）
-                let updateCount = max(1, flashingBlocks.count / 2)
+                // 计算要更新的方块数量（1/3）
+                let updateCount = max(1, flashingBlocks.count / 3)
                 
                 // 随机选择这些方块
                 let selectedBlocks = flashingBlocks.shuffled().prefix(updateCount)

@@ -8,7 +8,8 @@ struct BlockView: View {
     @State private var showScreenshot = false
     @State private var isVisible = false
     @State private var isTextVisible = false
-    private let animationDuration: Double = Double.random(in: 3.0...4.5)
+    private let animationDuration: Double = 3.5
+    // private let animationDuration: Double = Double.random(in: 1.5...2)
     
     var body: some View {
         ZStack {
@@ -49,7 +50,7 @@ struct BlockView: View {
                             )
                         )
                         .padding(3)
-                        .opacity(isVisible ? 0.4 : 0.1)
+                        .opacity(isVisible ? 0.3 : 0)
                         .scaleEffect(isVisible ? 1.0 : 0.95)
                         .onAppear {
                             withAnimation(Animation.easeInOut(duration: animationDuration).repeatForever(autoreverses: true)) {
@@ -64,7 +65,7 @@ struct BlockView: View {
                     .multilineTextAlignment(.center)
                     .font(.custom("IM FELL DW Pica", size: block.isFlashing ? 18 : 24))
                     .padding(EdgeInsets(top: 2, leading: 2, bottom: 2, trailing: 2))
-                    .opacity(block.isFlashing ? (isTextVisible ? 0.5 : 0.1) : 1)
+                    .opacity(block.isFlashing ? (isTextVisible ? 0.5 : 0) : 1)
                     .onAppear {
                         if block.isFlashing {
                             withAnimation(Animation.easeInOut(duration: animationDuration).repeatForever(autoreverses: true)) {
@@ -81,6 +82,9 @@ struct BlockView: View {
             if block.text != "" {
                 block.isFlashing.toggle()
             }
+            let impactFeedbackGenerator = UIImpactFeedbackGenerator(style: .medium)
+            impactFeedbackGenerator.prepare()
+            impactFeedbackGenerator.impactOccurred()
         }
         // Present Screenshot view as a sheet when showScreenshot is true
         .sheet(isPresented: $showScreenshot) {
