@@ -84,13 +84,23 @@ struct BlockView: View {
                     }
 
                     // 文字显示
-                    Text(word)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .foregroundColor(.white)
-                        .multilineTextAlignment(.center)
-                        .font(.custom("IM FELL DW Pica", size: block.isFlashing ? 18 : 24))
-                        .padding(EdgeInsets(top: 2, leading: 2, bottom: 2, trailing: 2))
-                        .opacity(shouldAnimate ? (isTextVisible ? 0.5 : 0) : 1)
+                    VStack(spacing: -18) {
+                        Text(word)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.center)
+                            .font(.custom("IM FELL DW Pica", size: block.isFlashing ? 18 : 24))
+                            .padding(EdgeInsets(top: 2, leading: 2, bottom: 2, trailing: 2))
+                            .opacity(shouldAnimate ? (isTextVisible ? 0.5 : 0) : 1)
+                        
+                        // 只在种子方块显示坐标
+                        if let coordinateText = block.coordinateText {
+                            Text(coordinateText)
+                                .font(.custom("IM FELL DW Pica", size: 14))
+                                .foregroundColor(.white)
+                                .opacity(0.8)
+                        }
+                    }
                 }
                 .clipped()
                 .onAppear {

@@ -23,6 +23,7 @@ class Block: Identifiable, ObservableObject, Equatable {
     var index: Int = 0
     @Published var text: String?
     @Published var isExitButton = false // New property for exit button
+    @Published var coordinateText: String?  // 添加坐标文本属性
 
     
     init(id: String, page_index: String, position: (x: Int, y: Int), text: String? = nil) {
@@ -30,6 +31,7 @@ class Block: Identifiable, ObservableObject, Equatable {
         self.page_index = page_index
         self.position = position
         self.text = text
+        self.coordinateText = nil
     }
 
     static func == (lhs: Block, rhs: Block) -> Bool {

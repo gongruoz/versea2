@@ -162,8 +162,8 @@ struct Screenshot: View {
                     if style == .inScreenshot {
                         HStack {
                             Spacer()
-                            Text("by a devcon poet \n via Lumino")
-                                .font(.custom("IM FELL DW Pica", size: 22))
+                            Text("by a devcon poet \n   via Lumino")
+                                .font(.custom("IM FELL DW Pica", size: 18))
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
                                 .multilineTextAlignment(.center)

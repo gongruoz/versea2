@@ -41,27 +41,42 @@ class RegionManager: ObservableObject {
             }
         }
         
-        // 为第一个屏幕随机选择一个方块作为种子
+        // 为第一个屏幕设置种子方块
         if let firstScreenBlocks = allBlocks["0-0"] {
-            let randomIndex = Int.random(in: 0..<firstScreenBlocks.count)
-            let seedBlock = firstScreenBlocks[randomIndex]
-            seedBlock.isFlashing = false
-            seedBlock.text = WordManager.shared.getRandomSeed() // +"\n (0, 0)"
-            self.initWordIndex = randomIndex  // 记录初始方块的索引
+            // 固定在第三行第二列的位置 (2, 1)
+            let seedIndex = firstScreenBlocks.firstIndex { block in 
+                block.position == (x: 2, y: 1)
+            }
             
-            // 更新 allBlocks
-            allBlocks["0-0"] = firstScreenBlocks
+            if let index = seedIndex {
+                let seedBlock = firstScreenBlocks[index]
+                seedBlock.isFlashing = false
+                // 添加坐标标记
+                let seedWord = WordManager.shared.getRandomSeed()
+                seedBlock.text = seedWord
+                
+                // 创建一个自定义视图来显示坐标
+                DispatchQueue.main.async {
+                    seedBlock.coordinateText = "(0, 0)"
+                }
+                
+                self.initWordIndex = index
+                allBlocks["0-0"] = firstScreenBlocks
+            }
         }
         
-        // 过滤掉不允许作为出口的页面上的方块
+        // 设置出口（INFINITY 按钮）
         let forbiddenPages = ["0-0", "0-1", "0-2", "1-0", "2-0"]
-        let validExitBlocks = allBlocksList.filter { block in
-            !forbiddenPages.contains(block.page_index)
-        }
-        
-        // 从有效的方块中随机选择出口
-        if let exitBlock = validExitBlocks.randomElement() {
-            exitBlock.isExitButton = true
+        let validPages = allBlocks.keys.filter { !forbiddenPages.contains($0) }
+
+        if let randomPage = validPages.randomElement(),
+           let pageBlocks = allBlocks[randomPage] {
+            // 找到右下角的方块 (7, 3)
+            if let exitBlock = pageBlocks.first(where: { block in
+                block.position == (x: 7, y: 3)  // 最右下角的位置
+            }) {
+                exitBlock.isExitButton = true
+            }
         }
     }
     
@@ -284,25 +299,42 @@ class RegionManager: ObservableObject {
             }
         }
         
-        // 为第一个屏幕随机选择一个方块作为种子
+        // 为第一个屏幕设置种子方块
         if let firstScreenBlocks = allBlocks["0-0"] {
-            let randomIndex = Int.random(in: 0..<firstScreenBlocks.count)
-            let seedBlock = firstScreenBlocks[randomIndex]
-            seedBlock.isFlashing = false
-            seedBlock.text = WordManager.shared.getRandomSeed()
-            self.initWordIndex = randomIndex
+            // 固定在第三行第二列的位置 (2, 1)
+            let seedIndex = firstScreenBlocks.firstIndex { block in 
+                block.position == (x: 2, y: 1)
+            }
             
-            allBlocks["0-0"] = firstScreenBlocks
+            if let index = seedIndex {
+                let seedBlock = firstScreenBlocks[index]
+                seedBlock.isFlashing = false
+                // 添加坐标标记
+                let seedWord = WordManager.shared.getRandomSeed()
+                seedBlock.text = seedWord
+                
+                // 创建一个自定义视图来显示坐标
+                DispatchQueue.main.async {
+                    seedBlock.coordinateText = "(0, 0)"
+                }
+                
+                self.initWordIndex = index
+                allBlocks["0-0"] = firstScreenBlocks
+            }
         }
         
         // 重新设置出口
         let forbiddenPages = ["0-0", "0-1", "0-2", "1-0", "2-0"]
-        let validExitBlocks = allBlocksList.filter { block in
-            !forbiddenPages.contains(block.page_index)
-        }
-        
-        if let exitBlock = validExitBlocks.randomElement() {
-            exitBlock.isExitButton = true
+        let validPages = allBlocks.keys.filter { !forbiddenPages.contains($0) }
+
+        if let randomPage = validPages.randomElement(),
+           let pageBlocks = allBlocks[randomPage] {
+            // 找到右下角的方块 (7, 3)
+            if let exitBlock = pageBlocks.first(where: { block in
+                block.position == (x: 7, y: 3)  // 最右下角的位置
+            }) {
+                exitBlock.isExitButton = true
+            }
         }
         
         objectWillChange.send()

@@ -83,22 +83,22 @@ struct IntroView: View {
                     
                     // 2. 白光动画（2.0-2.8秒）
                     DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                        withAnimation(.easeIn(duration: 1.2)) {
+                        withAnimation(.easeIn(duration: 0.8)) {
                             glowScale = 25.0
                             glowOpacity = 0.95  // 完全不透明
                         }
                         
                         // 3. 黑光动画（2.8-3.6秒）
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
                             darkGlowOpacity = 0.6  // 显示黑光
-                            withAnimation(.easeOut(duration: 1)) {
+                            withAnimation(.easeOut(duration: 0.5)) {
                                 darkGlowScale = 20.0  // 黑光放大
                                 glowOpacity = 0.0    // 白光淡出
                             }
                         }
                         
                         // 4. 介绍页面淡出（3.6-4.1秒）
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 2.8) {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                             withAnimation(.easeOut(duration: 0.3)) {
                                 introOpacity = 0.0
                             }
