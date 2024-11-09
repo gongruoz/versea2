@@ -46,6 +46,9 @@ struct BlockView: View {
                             showScreenshot = true
                             showGlow = false
                         }
+                    } else {
+                        // 通知 CanvasView 显示提示
+                        NotificationCenter.default.post(name: NSNotification.Name("ShowInfinityAlert"), object: nil)
                     }
                 }
             } else {
@@ -89,7 +92,7 @@ struct BlockView: View {
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .foregroundColor(.white)
                             .multilineTextAlignment(.center)
-                            .font(.custom("IM FELL DW Pica", size: block.isFlashing ? 18 : 24))
+                            .font(.custom("IM FELL DW Pica", size: block.isFlashing ? 18 : 22))
                             .padding(EdgeInsets(top: 2, leading: 2, bottom: 2, trailing: 2))
                             .opacity(shouldAnimate ? (isTextVisible ? 0.5 : 0) : 1)
                         

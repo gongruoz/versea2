@@ -42,7 +42,22 @@ class WordManager {
     
     // 仅保留重排序功能
     func reorderWords(_ texts: [String], retryCount: Int = 0) async -> [String]? {
-        let prompt = "Reorder these words into a poetic line, with no new words added, return exactly the new line and nothing else: \(texts.joined(separator: " "))"
+        let prompt = """
+        TASK: Rearrange ONLY the words inside [] into a grammatically correct, single line of poetry. \
+        [\(texts.joined(separator: " "))] are the ONLY words you can use. \
+        Rules:
+        1. Use ONLY words from the [] above, exactly as shown
+        2. Follow standard English grammar:
+           - adjectives before nouns
+           - subject-verb-object order
+           - proper word connections
+        3. DO NOT add any new words
+        4. DO NOT add punctuation
+        5. DO NOT include explanatory text
+
+        Return format: word1 word2 word3 (ONLY words from the [])
+        """
+        
         do {
             let response = try await aiService.processPrompt(prompt: prompt)
             return processPhrase(response)

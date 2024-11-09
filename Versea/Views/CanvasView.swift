@@ -22,6 +22,8 @@ struct CanvasView: View {
     
     @State private var currentMessageIndex = 0
     @State private var isTutorialComplete = false
+    @ObservedObject var regionManager = RegionManager.shared
+    @State private var showInfinityAlert = false
     
     var body: some View {
         ZStack {
@@ -46,9 +48,60 @@ struct CanvasView: View {
                     .multilineTextAlignment(.center)
                     .foregroundColor(.white)
                     .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color.black.opacity(0.4))
+                            .blur(radius: 10)
+
+                    )
                     .onAppear {
                         startTutorial()
                     }
+            }
+            
+            // Line breaks counter
+            VStack {
+                HStack {
+                    Spacer()
+                    Text("\(regionManager.orderedPoem.count) line breaks")
+                        .font(.custom("IM FELL DW Pica", size: 15))
+                        .foregroundColor(.white)
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(Color.black.opacity(0.4))
+                                .blur(radius: 3)
+                        )
+                        .padding(.top, 15)
+                        .padding(.trailing, 15)
+                }
+                Spacer()
+            }
+            
+            // Infinity alert
+            if showInfinityAlert {
+                Text("tap words and shake to unlock infinity!")
+                    .font(.custom("IM FELL DW Pica", size: 24))
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(.white)
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color.black.opacity(0.4))
+                            .blur(radius: 10)
+                    )
+                    .transition(.opacity)
+                    .animation(.easeInOut, value: showInfinityAlert)
+            }
+        }
+        .onAppear {
+            // 添加通知监听
+            NotificationCenter.default.addObserver(forName: NSNotification.Name("ShowInfinityAlert"), object: nil, queue: .main) { _ in
+                showInfinityAlert = true
+                // 3秒后自动隐藏提示
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                    showInfinityAlert = false
+                }
             }
         }
     }
