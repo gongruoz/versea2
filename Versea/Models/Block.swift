@@ -24,6 +24,7 @@ class Block: Identifiable, ObservableObject, Equatable {
     @Published var text: String?
     @Published var isExitButton = false // New property for exit button
     @Published var coordinateText: String?  // 添加坐标文本属性
+    @Published var isSeedPhrase: Bool = false  // 标识是否为种子词
 
     
     init(id: String, page_index: String, position: (x: Int, y: Int), text: String? = nil) {

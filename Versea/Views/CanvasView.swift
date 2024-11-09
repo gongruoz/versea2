@@ -103,6 +103,9 @@ struct CanvasView: View {
                     showInfinityAlert = false
                 }
             }
+            
+            // 启动自动闪烁
+            regionManager.startAutoFlashing()
         }
     }
     

@@ -61,7 +61,7 @@ struct IntroView: View {
                     }
                     .offset(y: -10)
 
-                    Text("a world of many worlds \n a poem of many poems")
+                    Text("a world of many worlds \n a poem of many poems \n \n \n for crypto poets")
                         .font(.custom("IM FELL DW Pica", size: 20))
                         .multilineTextAlignment(.center)
                         .padding(.top, 10)
@@ -83,15 +83,15 @@ struct IntroView: View {
                     
                     // 2. 白光动画（2.0-2.8秒）
                     DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                        withAnimation(.easeIn(duration: 0.8)) {
+                        withAnimation(.easeIn(duration: 1.2)) {
                             glowScale = 25.0
-                            glowOpacity = 0.95  // 完全不透明
+                            glowOpacity = 1  // 完全不透明
                         }
                         
                         // 3. 黑光动画（2.8-3.6秒）
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
                             darkGlowOpacity = 0.6  // 显示黑光
-                            withAnimation(.easeOut(duration: 0.5)) {
+                            withAnimation(.easeOut(duration: 0.8)) {
                                 darkGlowScale = 20.0  // 黑光放大
                                 glowOpacity = 0.0    // 白光淡出
                             }

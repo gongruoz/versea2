@@ -46,7 +46,7 @@ class WordManager {
         TASK: Rearrange ONLY the words inside [] into a grammatically correct, single line of poetry. \
         [\(texts.joined(separator: " "))] are the ONLY words you can use. \
         Rules:
-        1. Use ONLY words from the [] above, exactly as shown
+        1. Use ONLY words from the [] above, exactly as shown. Each word is used EXACTLY once. 
         2. Follow standard English grammar:
            - adjectives before nouns
            - subject-verb-object order

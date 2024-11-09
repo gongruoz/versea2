@@ -37,6 +37,9 @@ struct BlockView: View {
                 }
                 .frame(width: 80, height: 80)
                 .onTapGesture {
+                    let impactFeedbackGenerator = UIImpactFeedbackGenerator(style: .medium)
+                    impactFeedbackGenerator.prepare()
+                    impactFeedbackGenerator.impactOccurred()
                     if !RegionManager.shared.orderedPoem.isEmpty {
                         // 添加 INFINITY 到 orderedPoem
                         RegionManager.shared.addInfinityToPoem(block: block)
@@ -87,7 +90,7 @@ struct BlockView: View {
                     }
 
                     // 文字显示
-                    VStack(spacing: -18) {
+                    VStack(spacing: -20) {
                         Text(word)
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .foregroundColor(.white)
@@ -99,7 +102,7 @@ struct BlockView: View {
                         // 只在种子方块显示坐标
                         if let coordinateText = block.coordinateText {
                             Text(coordinateText)
-                                .font(.custom("IM FELL DW Pica", size: 14))
+                                .font(.custom("IM FELL DW Pica", size: 15))
                                 .foregroundColor(.white)
                                 .opacity(0.8)
                         }
@@ -129,12 +132,15 @@ struct BlockView: View {
                     }
                 }
                 .onTapGesture {
-                    if block.text != "" && block.text != " " {
-                        block.isFlashing.toggle()
+                    // 排除种子词的点击响应
+                    if !block.isSeedPhrase {
+                        if block.text != "" && block.text != " " {
+                            block.isFlashing.toggle()
+                        }
+                        let impactFeedbackGenerator = UIImpactFeedbackGenerator(style: .medium)
+                        impactFeedbackGenerator.prepare()
+                        impactFeedbackGenerator.impactOccurred()
                     }
-                    let impactFeedbackGenerator = UIImpactFeedbackGenerator(style: .medium)
-                    impactFeedbackGenerator.prepare()
-                    impactFeedbackGenerator.impactOccurred()
                 }
             }
         }

@@ -33,8 +33,8 @@ struct GlowView: View {
             .opacity(isVisible ? 1 : 0)  // 显示/隐藏控制
             .onChange(of: isVisible) { newValue in  // 监听显示状态变化
                 if newValue {  // 当显示时
-                    withAnimation(.easeIn(duration: 1.5)) {  // 0.5秒淡入动画
-                        scale = 20.0  // 放大到原始尺寸的 2 倍
+                    withAnimation(.easeIn(duration: 1.9)) {  // 0.5秒淡入动画
+                        scale = 30.0  // 放大到原始尺寸的 2 倍
                         opacity = 0.95
                     }
                 } else {  // 当隐藏时

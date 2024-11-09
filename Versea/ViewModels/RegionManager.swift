@@ -41,42 +41,31 @@ class RegionManager: ObservableObject {
             }
         }
         
-        // 为第一个屏幕设置种子方块
+        // 固定在第三行第二列的位置 (2, 1)
         if let firstScreenBlocks = allBlocks["0-0"] {
-            // 固定在第三行第二列的位置 (2, 1)
-            let seedIndex = firstScreenBlocks.firstIndex { block in 
+            if let seedBlock = firstScreenBlocks.first(where: { block in 
                 block.position == (x: 2, y: 1)
-            }
-            
-            if let index = seedIndex {
-                let seedBlock = firstScreenBlocks[index]
+            }) {
                 seedBlock.isFlashing = false
-                // 添加坐标标记
-                let seedWord = WordManager.shared.getRandomSeed()
-                seedBlock.text = seedWord
+                seedBlock.isSeedPhrase = true  // 标记为种子词
+                seedBlock.text = WordManager.shared.getRandomSeed()
+                seedBlock.coordinateText = "(0, 0)"  // 添加坐标文本
+                self.initWordIndex = firstScreenBlocks.firstIndex(where: { $0.id == seedBlock.id }) ?? -1
                 
-                // 创建一个自定义视图来显示坐标
-                DispatchQueue.main.async {
-                    seedBlock.coordinateText = "(0, 0)"
-                }
-                
-                self.initWordIndex = index
+                // 更新 allBlocks
                 allBlocks["0-0"] = firstScreenBlocks
             }
         }
         
-        // 设置出口（INFINITY 按钮）
+        // 过滤掉不允许作为出口的页面上的方块
         let forbiddenPages = ["0-0", "0-1", "0-2", "1-0", "2-0"]
-        let validPages = allBlocks.keys.filter { !forbiddenPages.contains($0) }
-
-        if let randomPage = validPages.randomElement(),
-           let pageBlocks = allBlocks[randomPage] {
-            // 找到右下角的方块 (7, 3)
-            if let exitBlock = pageBlocks.first(where: { block in
-                block.position == (x: 7, y: 3)  // 最右下角的位置
-            }) {
-                exitBlock.isExitButton = true
-            }
+        let validExitBlocks = allBlocksList.filter { block in
+            !forbiddenPages.contains(block.page_index)
+        }
+        
+        // 从有效的方块中随机选择出口
+        if let exitBlock = validExitBlocks.randomElement() {
+            exitBlock.isExitButton = true
         }
     }
     
@@ -161,7 +150,10 @@ class RegionManager: ObservableObject {
         
         // 2. 获取当前页面的所有非闪烁方块
         guard let blocks = allBlocks[pageIndex] else { return }
-        let nonFlashingBlocks = blocks.enumerated().filter { !$0.element.isFlashing }
+        let nonFlashingBlocks = blocks.enumerated().filter { 
+            !$0.element.isFlashing && 
+            !$0.element.isSeedPhrase  // 排除种子词
+        }
         
         // 3. 收集需要重排序的信息
         var textsToReorder: [String] = []
@@ -299,65 +291,61 @@ class RegionManager: ObservableObject {
             }
         }
         
-        // 为第一个屏幕设置种子方块
+        // 固定在第三行第二列的位置 (2, 1)
         if let firstScreenBlocks = allBlocks["0-0"] {
-            // 固定在第三行第二列的位置 (2, 1)
-            let seedIndex = firstScreenBlocks.firstIndex { block in 
+            if let seedBlock = firstScreenBlocks.first(where: { block in 
                 block.position == (x: 2, y: 1)
-            }
-            
-            if let index = seedIndex {
-                let seedBlock = firstScreenBlocks[index]
+            }) {
                 seedBlock.isFlashing = false
-                // 添加坐标标记
-                let seedWord = WordManager.shared.getRandomSeed()
-                seedBlock.text = seedWord
+                seedBlock.isSeedPhrase = true  // 标记为种子词
+                seedBlock.text = WordManager.shared.getRandomSeed()
+                seedBlock.coordinateText = "(0, 0)"  // 添加坐标文本
+                self.initWordIndex = firstScreenBlocks.firstIndex(where: { $0.id == seedBlock.id }) ?? -1
                 
-                // 创建一个自定义视图来显示坐标
-                DispatchQueue.main.async {
-                    seedBlock.coordinateText = "(0, 0)"
-                }
-                
-                self.initWordIndex = index
+                // 更新 allBlocks
                 allBlocks["0-0"] = firstScreenBlocks
             }
         }
         
         // 重新设置出口
         let forbiddenPages = ["0-0", "0-1", "0-2", "1-0", "2-0"]
-        let validPages = allBlocks.keys.filter { !forbiddenPages.contains($0) }
-
-        if let randomPage = validPages.randomElement(),
-           let pageBlocks = allBlocks[randomPage] {
-            // 找到右下角的方块 (7, 3)
-            if let exitBlock = pageBlocks.first(where: { block in
-                block.position == (x: 7, y: 3)  // 最右下角的位置
-            }) {
-                exitBlock.isExitButton = true
-            }
+        let validExitBlocks = allBlocksList.filter { block in
+            !forbiddenPages.contains(block.page_index)
+        }
+        
+        if let exitBlock = validExitBlocks.randomElement() {
+            exitBlock.isExitButton = true
         }
         
         objectWillChange.send()
     }
     
     func addInfinityToPoem(block: Block) {
-        // 获取 INFINITY 按钮的页码和坐标
         let pageIndex = block.page_index
         let position = block.position
         
         DispatchQueue.main.async {
-            // 如果已经有诗句，在最后一句后添加 infinity
             if !self.orderedPoem.isEmpty {
+                // 先添加种子词（如果还没有添加）
+                if let seedBlock = self.allBlocks["0-0"]?.first(where: { $0.isSeedPhrase }),
+                   !self.orderedPoem.contains(where: { $0.2.contains(seedBlock.text ?? "") }) {
+                    self.orderedPoem.insert((
+                        "0-0",
+                        [(seedBlock.position.x, seedBlock.position.y)],
+                        [seedBlock.text ?? ""]
+                    ), at: 0)  // 插入到最前面
+                }
+                
+                // 再添加 infinity
                 self.orderedPoem.append((
                     pageIndex,
                     [(position.x, position.y)],
                     ["infinity"]
                 ))
+                
+                self.objectWillChange.send()
             }
-            
-            self.objectWillChange.send()
         }
     }
 }
-
 
