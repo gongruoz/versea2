@@ -42,7 +42,7 @@ struct GridView: View {
         GeometryReader { geometry in
             let cellWidth = geometry.size.width / CGFloat(columns)
             let cellHeight = cellWidth
-            let totalHeight = cellHeight * CGFloat(rows)
+//            let totalHeight = cellHeight * CGFloat(rows)
             
             ZStack {
                 ForEach(0..<words.count, id: \.self) { index in

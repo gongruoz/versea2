@@ -118,11 +118,9 @@ struct BlockView: View {
                         }
                     } // removed .repeatForever(autoreverses: true)
                 }
-                .onChange(of: shouldAnimate) { newValue in
-                    // 当动画条件改变时更新动画状态
+                .onChange(of: shouldAnimate) { oldValue, newValue in
                     if newValue {
-                        withAnimation(Animation.easeInOut(duration: animationDuration)
-                            .repeatForever(autoreverses: true)) {
+                        withAnimation(Animation.easeInOut(duration: animationDuration)) {
                             isVisible.toggle()
                             isTextVisible.toggle()
                         }

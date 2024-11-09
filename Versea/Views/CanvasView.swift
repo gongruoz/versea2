@@ -24,6 +24,11 @@ struct CanvasView: View {
     @State private var isTutorialComplete = false
     @ObservedObject var regionManager = RegionManager.shared
     @State private var showInfinityAlert = false
+    @State private var autoFlashingTimer = Timer.publish(
+        every: 2.3,
+        on: .main,
+        in: .common
+    ).autoconnect()
     
     var body: some View {
         ZStack {
@@ -106,6 +111,13 @@ struct CanvasView: View {
             
             // 启动自动闪烁
             regionManager.startAutoFlashing()
+        }
+        .onReceive(autoFlashingTimer) { _ in
+//            print("Timer fired at: \(Date())")
+            RegionManager.shared.updateRandomWords()
+        }
+        .onDisappear {
+            autoFlashingTimer.upstream.connect().cancel()
         }
     }
     

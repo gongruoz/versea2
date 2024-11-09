@@ -43,7 +43,7 @@ class RegionManager: ObservableObject {
         
         // 固定在第三行第二列的位置 (2, 1)
         if let firstScreenBlocks = allBlocks["0-0"] {
-            if let seedBlock = firstScreenBlocks.first(where: { block in 
+            if let seedBlock = firstScreenBlocks.first(where: { block in
                 block.position == (x: 2, y: 1)
             }) {
                 seedBlock.isFlashing = false
@@ -91,7 +91,7 @@ class RegionManager: ObservableObject {
             guard let self = self else { return }
             
             // 遍历所有页面
-            for (pageIndex, blocks) in self.allBlocks {
+            for (_, blocks) in self.allBlocks {
                 // 获取可以闪烁的方块（isFlashing 为 true）
                 let flashingBlocks = blocks.filter { $0.isFlashing }
                 
@@ -150,8 +150,8 @@ class RegionManager: ObservableObject {
         
         // 2. 获取当前页面的所有非闪烁方块
         guard let blocks = allBlocks[pageIndex] else { return }
-        let nonFlashingBlocks = blocks.enumerated().filter { 
-            !$0.element.isFlashing && 
+        let nonFlashingBlocks = blocks.enumerated().filter {
+            !$0.element.isFlashing &&
             !$0.element.isSeedPhrase  // 排除种子词
         }
         
@@ -184,17 +184,28 @@ class RegionManager: ObservableObject {
                         let currentBlockPositions = blockPositions
                         let currentReorderedText = reorderedText
 
-                        if let existingIndex = self.orderedPoem.firstIndex(where: { $0.0 == pageIndex }) {
-                            // 如果该页面已存在记录，检查是否需要更新
-                            if !self.arePositionsEqual(self.orderedPoem[existingIndex].1, currentBlockPositions) || 
-                               self.orderedPoem[existingIndex].2 != currentReorderedText {
-                                // 更新现有记录
-                                self.orderedPoem[existingIndex] = (pageIndex, currentBlockPositions, currentReorderedText)
+                        // 1. 先在异步代码外捕获所有需要的值
+                        let capturedPositions = currentBlockPositions
+                        let capturedPageIndex = pageIndex
+                        let capturedReorderedText = currentReorderedText
+                        
+                        // 2. 然后在异步代码中使用这些捕获的值
+                        DispatchQueue.main.async { [weak self] in
+                            guard let self = self else { return }
+                            
+                            // 3. 使用捕获的值而不是直接访问属性
+                            if let existingIndex = self.orderedPoem.firstIndex(where: { $0.0 == capturedPageIndex }) {
+                                if !self.arePositionsEqual(self.orderedPoem[existingIndex].1, capturedPositions) ||
+                                   self.orderedPoem[existingIndex].2 != capturedReorderedText {
+                                    self.orderedPoem[existingIndex] = (capturedPageIndex, 
+                                                                     capturedPositions, 
+                                                                     capturedReorderedText)
+                                }
+                            } else {
+                                self.orderedPoem.append((capturedPageIndex, 
+                                                       capturedPositions, 
+                                                       capturedReorderedText))
                             }
-                        } else {
-                            // 如果是新页面，添加新记录
-                            self.orderedPoem.append((pageIndex, currentBlockPositions, currentReorderedText))
-                            print("ordered poem: \(self.orderedPoem)")
                         }
                     }
                 }
@@ -239,7 +250,7 @@ class RegionManager: ObservableObject {
         // 更新 allBlocks
         DispatchQueue.main.async {
             self.allBlocks[pageIndex] = blocks
-            self.allBlocks = self.allBlocks // 重新赋值字典
+            self.allBlocks = self.allBlocks // 新赋值字典
 
         }
     
@@ -293,7 +304,7 @@ class RegionManager: ObservableObject {
         
         // 固定在第三行第二列的位置 (2, 1)
         if let firstScreenBlocks = allBlocks["0-0"] {
-            if let seedBlock = firstScreenBlocks.first(where: { block in 
+            if let seedBlock = firstScreenBlocks.first(where: { block in
                 block.position == (x: 2, y: 1)
             }) {
                 seedBlock.isFlashing = false
@@ -329,11 +340,23 @@ class RegionManager: ObservableObject {
                 // 先添加种子词（如果还没有添加）
                 if let seedBlock = self.allBlocks["0-0"]?.first(where: { $0.isSeedPhrase }),
                    !self.orderedPoem.contains(where: { $0.2.contains(seedBlock.text ?? "") }) {
-                    self.orderedPoem.insert((
-                        "0-0",
-                        [(seedBlock.position.x, seedBlock.position.y)],
-                        [seedBlock.text ?? ""]
-                    ), at: 0)  // 插入到最前面
+                    
+                    // 如果第一页已经有内容，插入到第一页的开头
+                    if let firstPageIndex = self.orderedPoem.firstIndex(where: { $0.0 == "0-0" }) {
+                        var existingPage = self.orderedPoem[firstPageIndex]
+                        // 在现有位置列表的开头添加种子词的位置
+                        existingPage.1.insert((seedBlock.position.x, seedBlock.position.y), at: 0)
+                        // 在现有文本列表的开头添加种子词
+                        existingPage.2.insert(seedBlock.text ?? "", at: 0)
+                        self.orderedPoem[firstPageIndex] = existingPage
+                    } else {
+                        // 如果第一页还没有内容，创建新的记录
+                        self.orderedPoem.insert((
+                            "0-0",
+                            [(seedBlock.position.x, seedBlock.position.y)],
+                            [seedBlock.text ?? ""]
+                        ), at: 0)
+                    }
                 }
                 
                 // 再添加 infinity
@@ -344,6 +367,35 @@ class RegionManager: ObservableObject {
                 ))
                 
                 self.objectWillChange.send()
+            }
+        }
+    }
+    
+    // 添加新方法
+    func updateRandomWords() {
+        // 遍历所有页面
+        for (_, blocks) in self.allBlocks {
+            // 获取可以闪烁的方块（isFlashing 为 true）
+            let flashingBlocks = blocks.filter { $0.isFlashing }
+            
+            // 计算要更新的方块数量（1/2）
+            let updateCount = max(1, flashingBlocks.count / 2)
+            
+            // 随机选择这些方块
+            let selectedBlocks = flashingBlocks.shuffled().prefix(updateCount)
+            
+            // 更新选中的方块
+            for block in selectedBlocks {
+                // 随机生成新的文字
+                let randomWord: String
+                if arc4random_uniform(3) == 1 {
+                    randomWord = self.generateRandomWord()
+                } else {
+                    randomWord = ""
+                }
+                
+                // 更新方块的文字
+                self.update(for: block.page_index, blockID: block.id, newWord: randomWord)
             }
         }
     }

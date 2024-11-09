@@ -31,14 +31,14 @@ struct GlowView: View {
             .frame(width: 2000, height: 2000)  // 白光整体尺寸
             .scaleEffect(scale)  // 缩放效果，由 scale 状态控制
             .opacity(isVisible ? 1 : 0)  // 显示/隐藏控制
-            .onChange(of: isVisible) { newValue in  // 监听显示状态变化
+            .onChange(of: isVisible) { oldValue, newValue in  // 新语法包含 oldValue
                 if newValue {  // 当显示时
-                    withAnimation(.easeIn(duration: 1.9)) {  // 0.5秒淡入动画
-                        scale = 30.0  // 放大到原始尺寸的 2 倍
+                    withAnimation(.easeIn(duration: 1.9)) {
+                        scale = 30.0
                         opacity = 0.95
                     }
                 } else {  // 当隐藏时
-                    scale = 0.5  // 重置为初始大小
+                    scale = 0.5
                     opacity = 0.9
                 }
             }
