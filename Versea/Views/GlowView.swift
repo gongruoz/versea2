@@ -10,13 +10,14 @@ import SwiftUI
 struct GlowView: View {
     @Binding var isVisible: Bool  // 控制白光显示/隐藏的绑定变量
     @State private var scale: CGFloat = 0.5  // 白光初始大小为原始尺寸的 50%
+    @State private var opacity: Double = 0.9
     
     var body: some View {
         RoundedRectangle(cornerRadius: 300, style: .continuous)  // 圆角矩形，圆角半径为 30
             .fill(
                 RadialGradient(
                     gradient: Gradient(colors: [
-                        Color.white.opacity(0.9),  // 中心点白光不透明度为 60%
+                        Color.white.opacity(opacity),  // 中心点白光不透明度为 60%
                         Color.white.opacity(0)      // 边缘完全透明
                     ]),
                     center: .center,  // 渐变中心点
@@ -33,10 +34,12 @@ struct GlowView: View {
             .onChange(of: isVisible) { newValue in  // 监听显示状态变化
                 if newValue {  // 当显示时
                     withAnimation(.easeIn(duration: 1.5)) {  // 0.5秒淡入动画
-                        scale = 2.0  // 放大到原始尺寸的 2 倍
+                        scale = 20.0  // 放大到原始尺寸的 2 倍
+                        opacity = 0.95
                     }
                 } else {  // 当隐藏时
                     scale = 0.5  // 重置为初始大小
+                    opacity = 0.9
                 }
             }
     }

@@ -31,4 +31,13 @@ class CanvasViewModel: ObservableObject {
         self.currentMainPage = (horizontal, vertical)
     }
 
+    func reset() {
+        // 重置所有状态
+        currentMainPage = nil
+        currentPageGenStatus = [:]  // 重置页面生成状态
+        
+        // 通知视图更新
+        objectWillChange.send()
+    }
+
 }

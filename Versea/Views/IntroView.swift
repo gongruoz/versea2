@@ -4,6 +4,10 @@ struct IntroView: View {
     @State private var isIntroComplete = false
     @State private var introOpacity = 0.0
     @State private var showCanvas = false
+    @State private var glowScale: CGFloat = 1.0
+    @State private var glowOpacity: Double = 0.6
+    @State private var darkGlowScale: CGFloat = 0 // 黑光初始大小
+    @State private var darkGlowOpacity: Double = 0  // 黑光初始透明度
     
     var body: some View {
         ZStack {
@@ -11,68 +15,98 @@ struct IntroView: View {
                 .ignoresSafeArea()
             
             if showCanvas {
-                // Main app content with fade-in effect
                 CanvasView()
                     .transition(.opacity)
-                    .animation(.easeIn(duration: 1.0), value: showCanvas) // Fade-in animation
+                    .animation(.easeIn(duration: 1.0), value: showCanvas)
             } else {
-                // Intro screen with logo, name, and slogan
-                VStack(spacing: 0) { // Control spacing between elements
+                VStack(spacing: 0) {
                     Spacer()
                     
-                    // App name with custom position
                     Text("Lumino")
                         .font(.custom("IM FELL DW Pica", size: 30))
                         .fontWeight(.bold)
                         .multilineTextAlignment(.center)
-                        .padding(.top, 20) // Padding above the text
-                        .offset(y: -20) // Fine-tune position using offset
+                        .padding(.top, 20)
+                        .offset(y: -20)
 
-                    // Logo with custom frame and position
-                    RoundedRectangle(cornerRadius: 30, style: .continuous)
-                        .fill(
-                            RadialGradient(
-                                gradient: Gradient(colors: [Color.white.opacity(0.6), Color.white.opacity(0)]),
-                                center: .center,
-                                startRadius: 0,
-                                endRadius: 60
+                    ZStack {
+                        // 白光效果
+                        RoundedRectangle(cornerRadius: 30, style: .continuous)
+                            .fill(
+                                RadialGradient(
+                                    gradient: Gradient(colors: [Color.white.opacity(glowOpacity), Color.white.opacity(0)]),
+                                    center: .center,
+                                    startRadius: 0,
+                                    endRadius: 60
+                                )
                             )
-                        )
-                        .padding(5)
-                        .blur(radius: 10)
-                        .scaledToFit()
-                        .frame(width: 200, height: 200)
-                        .offset(y: -10) // Fine-tune position using offset
+                            .padding(5)
+                            .blur(radius: 10)
+                            .scaledToFit()
+                            .frame(width: 200, height: 200)
+                            .scaleEffect(glowScale)
+                        
+                        // 黑光效果
+                        Circle()
+                            .fill(
+                                RadialGradient(
+                                    gradient: Gradient(colors: [Color.black.opacity(darkGlowOpacity), Color.clear]),
+                                    center: .center,
+                                    startRadius: 0,
+                                    endRadius: 20
+                                )
+                            )
+                            .frame(width: 200, height: 200)
+                            .scaleEffect(darkGlowScale)
+                    }
+                    .offset(y: -10)
 
-                    // Slogan with custom position and padding
                     Text("a world of many worlds \n a poem of many poems")
                         .font(.custom("IM FELL DW Pica", size: 20))
                         .multilineTextAlignment(.center)
-                        .padding(.top, 10) // Padding above the slogan text
-                        .padding(.horizontal, 40) // Add horizontal padding for alignment
-                        .offset(y: 20) // Fine-tune position using offset
+                        .padding(.top, 10)
+                        .padding(.horizontal, 40)
+                        .offset(y: 20)
 
                     Spacer()
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity) // Ensures full width and height
-                .background(Color.black) // Background color for full screen
-                .foregroundColor(.white) // Text color, adjust as needed
-                .opacity(introOpacity) // Set initial opacity
-                .ignoresSafeArea() // Ensures no padding from safe area
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.black)
+                .foregroundColor(.white)
+                .opacity(introOpacity)
+                .ignoresSafeArea()
                 .onAppear {
-                    // Fade-in effect on appear
-                    withAnimation(.easeIn(duration: 1.0)) {
+                    // 1. 初始淡入（0-1.2秒）
+                    withAnimation(.easeIn(duration: 1.2)) {
                         introOpacity = 1.0
                     }
                     
-                    // Timer to fade out and transition after 3 seconds
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                        withAnimation(.easeOut(duration: 1.0)) {
-                            introOpacity = 0.0
+                    // 2. 白光动画（2.0-2.8秒）
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                        withAnimation(.easeIn(duration: 1.2)) {
+                            glowScale = 25.0
+                            glowOpacity = 0.95  // 完全不透明
                         }
-                        // Delay to allow fade-out before transitioning
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                            showCanvas = true
+                        
+                        // 3. 黑光动画（2.8-3.6秒）
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                            darkGlowOpacity = 0.6  // 显示黑光
+                            withAnimation(.easeOut(duration: 1)) {
+                                darkGlowScale = 20.0  // 黑光放大
+                                glowOpacity = 0.0    // 白光淡出
+                            }
+                        }
+                        
+                        // 4. 介绍页面淡出（3.6-4.1秒）
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2.8) {
+                            withAnimation(.easeOut(duration: 0.3)) {
+                                introOpacity = 0.0
+                            }
+                            
+                            // 5. 显示主画布
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                showCanvas = true
+                            }
                         }
                     }
                 }

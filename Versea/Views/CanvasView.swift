@@ -6,7 +6,7 @@ struct CanvasView: View {
         "",
         """
         keep scrolling in any direction
-        to go back to the start
+        to return to the start
         """,
         "",
         """
@@ -16,7 +16,7 @@ struct CanvasView: View {
         "",
         """
         words reveal the path
-        towards the exit
+        toward infinity
         """
     ]
     

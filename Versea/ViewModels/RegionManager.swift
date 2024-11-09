@@ -46,7 +46,7 @@ class RegionManager: ObservableObject {
             let randomIndex = Int.random(in: 0..<firstScreenBlocks.count)
             let seedBlock = firstScreenBlocks[randomIndex]
             seedBlock.isFlashing = false
-            seedBlock.text = WordManager.shared.getRandomSeed()+"\n (0, 0)"
+            seedBlock.text = WordManager.shared.getRandomSeed() // +"\n (0, 0)"
             self.initWordIndex = randomIndex  // 记录初始方块的索引
             
             // 更新 allBlocks
@@ -82,10 +82,8 @@ class RegionManager: ObservableObject {
             return
         }
         
-        // 随机秒触发一次定时器，这个时常要比 blockview 的闪烁更久，留出充足时间让 blockview ease out
-//        let dt = Double.random(in: 5.5...6.5)
         
-        timer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { [weak self] _ in
+        timer = Timer.scheduledTimer(withTimeInterval: 2.3, repeats: true) { [weak self] _ in
             guard let self = self else { return }
             
             // 遍历所有页面
@@ -93,8 +91,8 @@ class RegionManager: ObservableObject {
                 // 获取可以闪烁的方块（isFlashing 为 true）
                 let flashingBlocks = blocks.filter { $0.isFlashing }
                 
-                // 计算要更新的方块数量（1/3）
-                let updateCount = max(1, flashingBlocks.count / 3)
+                // 计算要更新的方块数量（1/2）
+                let updateCount = max(1, flashingBlocks.count / 2)
                 
                 // 随机选择这些方块
                 let selectedBlocks = flashingBlocks.shuffled().prefix(updateCount)
@@ -256,6 +254,78 @@ class RegionManager: ObservableObject {
     }
     
     
+    func resetAll() {
+        // 重置所有状态
+        allBlocks = [:]  // 清空所有方块
+        orderedPoem = [] // 清空诗句
+        initWordIndex = -1
+        timer?.invalidate()
+        timer = nil
+        
+        // 重新初始化所有方块
+        var allBlocksList: [Block] = []
+        
+        for x in 0..<3 {
+            for y in 0..<3 {
+                var blocks: [Block] = []
+                for j in 0..<8 {
+                    for k in 0..<4 {
+                        let position = (x: j, y: k)
+                        let id = "\(x)\(y)-\(j)\(k)"
+                        let page_index = "\(x)-\(y)"
+                        
+                        let newBlock = Block(id: id, page_index: page_index, position: position)
+                        blocks.append(newBlock)
+                        allBlocksList.append(newBlock)
+                    }
+                }
+                
+                allBlocks["\(x)-\(y)"] = blocks
+            }
+        }
+        
+        // 为第一个屏幕随机选择一个方块作为种子
+        if let firstScreenBlocks = allBlocks["0-0"] {
+            let randomIndex = Int.random(in: 0..<firstScreenBlocks.count)
+            let seedBlock = firstScreenBlocks[randomIndex]
+            seedBlock.isFlashing = false
+            seedBlock.text = WordManager.shared.getRandomSeed()
+            self.initWordIndex = randomIndex
+            
+            allBlocks["0-0"] = firstScreenBlocks
+        }
+        
+        // 重新设置出口
+        let forbiddenPages = ["0-0", "0-1", "0-2", "1-0", "2-0"]
+        let validExitBlocks = allBlocksList.filter { block in
+            !forbiddenPages.contains(block.page_index)
+        }
+        
+        if let exitBlock = validExitBlocks.randomElement() {
+            exitBlock.isExitButton = true
+        }
+        
+        objectWillChange.send()
+    }
+    
+    func addInfinityToPoem(block: Block) {
+        // 获取 INFINITY 按钮的页码和坐标
+        let pageIndex = block.page_index
+        let position = block.position
+        
+        DispatchQueue.main.async {
+            // 如果已经有诗句，在最后一句后添加 infinity
+            if !self.orderedPoem.isEmpty {
+                self.orderedPoem.append((
+                    pageIndex,
+                    [(position.x, position.y)],
+                    ["infinity"]
+                ))
+            }
+            
+            self.objectWillChange.send()
+        }
+    }
 }
 
 

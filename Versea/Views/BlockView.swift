@@ -8,8 +8,13 @@ struct BlockView: View {
     @State private var showScreenshot = false
     @State private var isVisible = false
     @State private var isTextVisible = false
-    private let animationDuration: Double = 3.5
+    private let animationDuration: Double = 2.3
     @State private var showGlow = false
+    
+    // 统一管理动画状态
+    private var shouldAnimate: Bool {
+        block.isFlashing && block.text != nil && !block.text!.isEmpty && block.text != " "
+    }
     
     var body: some View {
         ZStack {
@@ -33,8 +38,11 @@ struct BlockView: View {
                 .frame(width: 80, height: 80)
                 .onTapGesture {
                     if !RegionManager.shared.orderedPoem.isEmpty {
+                        // 添加 INFINITY 到 orderedPoem
+                        RegionManager.shared.addInfinityToPoem(block: block)
+                        
                         showGlow = true
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                             showScreenshot = true
                             showGlow = false
                         }
@@ -43,6 +51,7 @@ struct BlockView: View {
             } else {
                 // Normal block view
                 ZStack {
+                    // 基础渐变背景
                     if !block.isFlashing {
                         RoundedRectangle(cornerRadius: 25, style: .continuous)
                             .fill(
@@ -57,7 +66,9 @@ struct BlockView: View {
                             .blur(radius: 8)
                     }
 
-                    if block.isFlashing && block.text != "" {
+                    // 闪烁动画
+                    if shouldAnimate {
+                        
                         RoundedRectangle(cornerRadius: 25, style: .continuous)
                             .fill(
                                 RadialGradient(
@@ -70,33 +81,42 @@ struct BlockView: View {
                             .padding(3)
                             .opacity(isVisible ? 0.3 : 0)
                             .scaleEffect(isVisible ? 1.0 : 0.95)
-                            .onAppear {
-                                withAnimation(Animation.easeInOut(duration: animationDuration).repeatForever(autoreverses: true)) {
-                                    isVisible.toggle()
-                                }
-                            }
                     }
 
+                    // 文字显示
                     Text(word)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
                         .font(.custom("IM FELL DW Pica", size: block.isFlashing ? 18 : 24))
                         .padding(EdgeInsets(top: 2, leading: 2, bottom: 2, trailing: 2))
-                        .opacity(block.isFlashing ? (isTextVisible ? 0.5 : 0) : 1)
-                        .onAppear {
-                            if block.isFlashing {
-                                withAnimation(Animation.easeInOut(duration: animationDuration).repeatForever(autoreverses: true)) {
-                                    isTextVisible.toggle()
-                                }
-                            } else {
-                                isTextVisible = true
-                            }
-                        }
+                        .opacity(shouldAnimate ? (isTextVisible ? 0.5 : 0) : 1)
                 }
                 .clipped()
+                .onAppear {
+                    // 只在需要动画时启动动画
+                    if shouldAnimate {
+                        withAnimation(Animation.easeInOut(duration: animationDuration)) {
+                            isVisible.toggle()
+                            isTextVisible.toggle()
+                        }
+                    } // removed .repeatForever(autoreverses: true)
+                }
+                .onChange(of: shouldAnimate) { newValue in
+                    // 当动画条件改变时更新动画状态
+                    if newValue {
+                        withAnimation(Animation.easeInOut(duration: animationDuration)
+                            .repeatForever(autoreverses: true)) {
+                            isVisible.toggle()
+                            isTextVisible.toggle()
+                        }
+                    } else {
+                        isVisible = false
+                        isTextVisible = true
+                    }
+                }
                 .onTapGesture {
-                    if block.text != "" {
+                    if block.text != "" && block.text != " " {
                         block.isFlashing.toggle()
                     }
                     let impactFeedbackGenerator = UIImpactFeedbackGenerator(style: .medium)
@@ -105,14 +125,18 @@ struct BlockView: View {
                 }
             }
         }
-        .sheet(isPresented: $showScreenshot) {
-            ScrollView {
-                Screenshot(
-                    points: RegionManager.shared.orderedPoem.map { $0.1.map { Point(x: $0.0, y: $0.1) } },
-                    wordsArr: RegionManager.shared.orderedPoem.map { $0.2 }
-                )
-                .padding()
-            }
+        .fullScreenCover(isPresented: $showScreenshot) {
+            Screenshot(
+                points: RegionManager.shared.orderedPoem.map { $0.1.map { Point(x: $0.0, y: $0.1) } },
+                wordsArr: RegionManager.shared.orderedPoem.map { $0.2 },
+                onReset: {
+                    // 重置所有状态
+                    RegionManager.shared.resetAll()  // 需要在 RegionManager 中添加这个方法
+                    CanvasViewModel.shared.reset()   // 需要在 CanvasViewModel 中添加这个方法
+                }
+            )
+            .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+            .padding()
         }
     }
 }
