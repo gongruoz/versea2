@@ -57,16 +57,22 @@ class RegionManager: ObservableObject {
             }
         }
         
-        // 过滤掉不允许作为出口的页面上的方块
+        // 设置出口（INFINITY 按钮）
         let forbiddenPages = ["0-0", "0-1", "0-2", "1-0", "2-0"]
-        let validExitBlocks = allBlocksList.filter { block in
-            !forbiddenPages.contains(block.page_index)
+        let validPages = allBlocks.keys.filter { !forbiddenPages.contains($0) }
+
+        if let randomPage = validPages.randomElement(),
+           let pageBlocks = allBlocks[randomPage] {
+            // 找到右下角的方块 (7, 3)
+            if let exitBlock = pageBlocks.first(where: { block in
+                block.position == (x: 7, y: 3)  // 最右下角的位置
+            }) {
+                exitBlock.isExitButton = true
+            }
         }
         
-        // 从有效的方块中随机选择出口
-        if let exitBlock = validExitBlocks.randomElement() {
-            exitBlock.isExitButton = true
-        }
+        // 在初始化时就开始闪烁
+        startAutoFlashing()
     }
     
 
@@ -82,39 +88,10 @@ class RegionManager: ObservableObject {
     
     func startAutoFlashing() {
         // 如果定时器已经存在，不再创建新的定时器
-        if timer != nil {
-            return
-        }
-        
+        guard timer == nil else { return }
         
         timer = Timer.scheduledTimer(withTimeInterval: 2.3, repeats: true) { [weak self] _ in
-            guard let self = self else { return }
-            
-            // 遍历所有页面
-            for (_, blocks) in self.allBlocks {
-                // 获取可以闪烁的方块（isFlashing 为 true）
-                let flashingBlocks = blocks.filter { $0.isFlashing }
-                
-                // 计算要更新的方块数量（1/2）
-                let updateCount = max(1, flashingBlocks.count / 2)
-                
-                // 随机选择这些方块
-                let selectedBlocks = flashingBlocks.shuffled().prefix(updateCount)
-                
-                // 更新选中的方块
-                for block in selectedBlocks {
-                    // 随机生成新的文字
-                    let randomWord: String
-                    if arc4random_uniform(3) == 1 {
-                        randomWord = self.generateRandomWord()
-                    } else {
-                        randomWord = ""
-                    }
-                    
-                    // 更新方块的文字
-                    self.update(for: block.page_index, blockID: block.id, newWord: randomWord)
-                }
-            }
+            self?.updateRandomWords()
         }
     }
     
@@ -168,44 +145,36 @@ class RegionManager: ObservableObject {
             }
         }
         
-        // 4. 调用 LLM 重排序
+        // Capture all values needed before async block
+        let capturedPageIndex = pageIndex
+        let capturedBlockIds = blockIds
+        let capturedBlockPositions = blockPositions
+        
         if !textsToReorder.isEmpty {
             Task {
                 if let reorderedText = await reorderTextWithLLM(textsToReorder) {
-                    // 5. 更新方块文字
-                    for (index, blockId) in blockIds.enumerated() {
+                    // Use captured values
+                    for (index, blockId) in capturedBlockIds.enumerated() {
                         if index < reorderedText.count {
-                            updateBlockText(for: pageIndex, blockID: blockId, newText: reorderedText[index])
+                            updateBlockText(for: capturedPageIndex, blockID: blockId, newText: reorderedText[index])
                         }
                     }
                     
-                    // 6. 更新 orderedPoem
-                    DispatchQueue.main.async {
-                        let currentBlockPositions = blockPositions
-                        let currentReorderedText = reorderedText
-
-                        // 1. 先在异步代码外捕获所有需要的值
-                        let capturedPositions = currentBlockPositions
-                        let capturedPageIndex = pageIndex
-                        let capturedReorderedText = currentReorderedText
+                    // Update orderedPoem using captured values
+                    DispatchQueue.main.async { [weak self] in
+                        guard let self = self else { return }
                         
-                        // 2. 然后在异步代码中使用这些捕获的值
-                        DispatchQueue.main.async { [weak self] in
-                            guard let self = self else { return }
-                            
-                            // 3. 使用捕获的值而不是直接访问属性
-                            if let existingIndex = self.orderedPoem.firstIndex(where: { $0.0 == capturedPageIndex }) {
-                                if !self.arePositionsEqual(self.orderedPoem[existingIndex].1, capturedPositions) ||
-                                   self.orderedPoem[existingIndex].2 != capturedReorderedText {
-                                    self.orderedPoem[existingIndex] = (capturedPageIndex, 
-                                                                     capturedPositions, 
-                                                                     capturedReorderedText)
-                                }
-                            } else {
-                                self.orderedPoem.append((capturedPageIndex, 
-                                                       capturedPositions, 
-                                                       capturedReorderedText))
+                        if let existingIndex = self.orderedPoem.firstIndex(where: { $0.0 == capturedPageIndex }) {
+                            if !self.arePositionsEqual(self.orderedPoem[existingIndex].1, capturedBlockPositions) ||
+                               self.orderedPoem[existingIndex].2 != reorderedText {
+                                self.orderedPoem[existingIndex] = (capturedPageIndex, 
+                                                                 capturedBlockPositions, 
+                                                                 reorderedText)
                             }
+                        } else {
+                            self.orderedPoem.append((capturedPageIndex, 
+                                                   capturedBlockPositions, 
+                                                   reorderedText))
                         }
                     }
                 }
@@ -300,6 +269,7 @@ class RegionManager: ObservableObject {
                 
                 allBlocks["\(x)-\(y)"] = blocks
             }
+            
         }
         
         // 固定在第三行第二列的位置 (2, 1)
@@ -318,16 +288,20 @@ class RegionManager: ObservableObject {
             }
         }
         
-        // 重新设置出口
+        // 重新设置出口（INFINITY 按钮）
         let forbiddenPages = ["0-0", "0-1", "0-2", "1-0", "2-0"]
-        let validExitBlocks = allBlocksList.filter { block in
-            !forbiddenPages.contains(block.page_index)
+        let validPages = allBlocks.keys.filter { !forbiddenPages.contains($0) }
+
+        if let randomPage = validPages.randomElement(),
+           let pageBlocks = allBlocks[randomPage] {
+            // 找到右下角的方块 (7, 3)
+            if let exitBlock = pageBlocks.first(where: { block in
+                block.position == (x: 7, y: 3)  // 最右下角的位置
+            }) {
+                exitBlock.isExitButton = true
+            }
         }
-        
-        if let exitBlock = validExitBlocks.randomElement() {
-            exitBlock.isExitButton = true
-        }
-        
+        startAutoFlashing()
         objectWillChange.send()
     }
     

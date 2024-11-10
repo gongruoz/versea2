@@ -24,11 +24,6 @@ struct CanvasView: View {
     @State private var isTutorialComplete = false
     @ObservedObject var regionManager = RegionManager.shared
     @State private var showInfinityAlert = false
-    @State private var autoFlashingTimer = Timer.publish(
-        every: 2.3,
-        on: .main,
-        in: .common
-    ).autoconnect()
     
     var body: some View {
         ZStack {
@@ -100,25 +95,18 @@ struct CanvasView: View {
             }
         }
         .onAppear {
+            // 只在这里启动一次自动闪烁
+            regionManager.startAutoFlashing()
+            
             // 添加通知监听
             NotificationCenter.default.addObserver(forName: NSNotification.Name("ShowInfinityAlert"), object: nil, queue: .main) { _ in
                 showInfinityAlert = true
-                // 3秒后自动隐藏提示
                 DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                     showInfinityAlert = false
                 }
             }
-            
-            // 启动自动闪烁
-            regionManager.startAutoFlashing()
         }
-        .onReceive(autoFlashingTimer) { _ in
-//            print("Timer fired at: \(Date())")
-            RegionManager.shared.updateRandomWords()
-        }
-        .onDisappear {
-            autoFlashingTimer.upstream.connect().cancel()
-        }
+        
     }
     
     // Timer to iterate through tutorial messages
@@ -191,15 +179,10 @@ struct PageView: View {
                 .task(id: mainPage) {
                     if let mainPage, mainPage.horizontal == h, mainPage.vertical == v {
                         isCurrent = true
-                        regionManager.startAutoFlashing()
                     } else {
                         isCurrent = false
                     }
                 }
-//
-//                .onAppear{
-//                    regionManager.startAutoFlashing()
-//                }
                 .onShake {
                     regionManager.reorderCurrentPage()
                     let impactFeedbackGenerator = UIImpactFeedbackGenerator(style: .heavy)

@@ -13,15 +13,12 @@ class WordManager {
     @Published var seedWords: [String] = []
 
     init() {
-        // 加载主词库
-        if let poems = loadMarkdownContent(from: "poems") {
-            wordList = processPhrase(poems)
-        }
-        
-        // 加载种子词库
-        if let seeds = loadMarkdownContent(from: "seeds") {
-            seedWords = processPhrase(seeds)
-        }
+        // 使用 WordLibrary 中的常量
+        wordList = processPhrase(WordLibrary.poems)
+        seedWords = WordLibrary.seeds
+            .components(separatedBy: .newlines)
+            .filter { !$0.isEmpty }
+            .map { $0.trimmingCharacters(in: .whitespaces) }
     }
     
     // 获取随机种子词

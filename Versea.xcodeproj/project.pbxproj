@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		3F0BE9272CCB805A00EEB4A0 /* WordManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F0BE9262CCB805500EEB4A0 /* WordManager.swift */; };
+		3F3BD6F12CE05A5000071BAA /* WordLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F3BD6F02CE05A4D00071BAA /* WordLibrary.swift */; };
 		3F5A10902CA956DD00D41671 /* CanvasViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F5A108F2CA956DD00D41671 /* CanvasViewModel.swift */; };
 		3F5A10962CA958B100D41671 /* ShakeDetectingWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F5A10952CA958B100D41671 /* ShakeDetectingWindow.swift */; };
 		3F5A10982CA958EE00D41671 /* ColorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F5A10972CA958EE00D41671 /* ColorExtension.swift */; };
@@ -39,6 +40,7 @@
 
 /* Begin PBXFileReference section */
 		3F0BE9262CCB805500EEB4A0 /* WordManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordManager.swift; sourceTree = "<group>"; };
+		3F3BD6F02CE05A4D00071BAA /* WordLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordLibrary.swift; sourceTree = "<group>"; };
 		3F5A108F2CA956DD00D41671 /* CanvasViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasViewModel.swift; sourceTree = "<group>"; };
 		3F5A10952CA958B100D41671 /* ShakeDetectingWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShakeDetectingWindow.swift; sourceTree = "<group>"; };
 		3F5A10972CA958EE00D41671 /* ColorExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ColorExtension.swift; path = ../Views/ColorExtension.swift; sourceTree = "<group>"; };
@@ -93,6 +95,7 @@
 		3F5A10922CA9572500D41671 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				3F3BD6F02CE05A4D00071BAA /* WordLibrary.swift */,
 				3F744F162CDD4A4B00D50497 /* loadMarkdownContent.swift */,
 				D707442E2CBD4D970077A61D /* Infinite4Pager */,
 				3F5A10952CA958B100D41671 /* ShakeDetectingWindow.swift */,
@@ -307,6 +310,7 @@
 				3F5A10982CA958EE00D41671 /* ColorExtension.swift in Sources */,
 				3F5A10962CA958B100D41671 /* ShakeDetectingWindow.swift in Sources */,
 				D70744322CBD4DF90077A61D /* CanvasView.swift in Sources */,
+				3F3BD6F12CE05A5000071BAA /* WordLibrary.swift in Sources */,
 				3FA0749F2C973993002376FB /* BlockView.swift in Sources */,
 				D70744302CBD4D970077A61D /* Infinite4Pager.swift in Sources */,
 				3F744F172CDD4A5300D50497 /* loadMarkdownContent.swift in Sources */,
