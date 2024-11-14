@@ -27,8 +27,8 @@ struct BlockView: View {
                         .fill(Color.black)
                         .opacity(1)
                         .frame(width: 60, height: 60)
-                        .shadow(color: Color.white.opacity(0.12), radius: 10, x: 8, y: -8)
-                        .shadow(color: Color.white.opacity(0.12), radius: 8, x: 8, y: 8)
+                        .shadow(color: Color.white.opacity(0.2), radius: 10, x: 8, y: -8)
+                        .shadow(color: Color.white.opacity(0.2), radius: 8, x: 8, y: 8)
                     
                     Text("INFINITY")
                         .foregroundColor(.white)
