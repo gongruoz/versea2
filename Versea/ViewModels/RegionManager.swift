@@ -44,7 +44,7 @@ class RegionManager: ObservableObject {
         // 固定在第三行第二列的位置 (2, 1)
         if let firstScreenBlocks = allBlocks["0-0"] {
             if let seedBlock = firstScreenBlocks.first(where: { block in
-                block.position == (x: 2, y: 1)
+                block.position == (x: 1, y: 0)
             }) {
                 seedBlock.isFlashing = false
                 seedBlock.isSeedPhrase = true  // 标记为种子词
@@ -305,46 +305,7 @@ class RegionManager: ObservableObject {
         objectWillChange.send()
     }
     
-    // tap infinity 的时候，为了生成 screenshot page 而结算
-    func addInfinityToPoem(block: Block) {
-        let pageIndex = block.page_index
-        let position = block.position
-        
-        DispatchQueue.main.async {
-            if !self.orderedPoem.isEmpty {
-                // 先添加种子词（如果还没有添加）
-                if let seedBlock = self.allBlocks["0-0"]?.first(where: { $0.isSeedPhrase }),
-                   !self.orderedPoem.contains(where: { $0.2.contains(seedBlock.text ?? "") }) {
-                    
-                    // 如果第一页已经有内容，插入到第一页的开头
-                    if let firstPageIndex = self.orderedPoem.firstIndex(where: { $0.0 == "0-0" }) {
-                        var existingPage = self.orderedPoem[firstPageIndex]
-                        // 在现有位置列表的开头添加种子词的位置
-                        existingPage.1.insert((seedBlock.position.x, seedBlock.position.y), at: 0)
-                        // 在现有文本列表的开头添加种子词
-                        existingPage.2.insert(seedBlock.text ?? "", at: 0)
-                        self.orderedPoem[firstPageIndex] = existingPage
-                    } else {
-                        // 如果第一页还没有内容，创建新的记录
-                        self.orderedPoem.insert((
-                            "0-0",
-                            [(seedBlock.position.x, seedBlock.position.y)],
-                            [seedBlock.text ?? ""]
-                        ), at: 0)
-                    }
-                }
-                
-                // 再添加 infinity
-                self.orderedPoem.append((
-                    pageIndex,
-                    [(position.x, position.y)],
-                    ["infinity"]
-                ))
-                
-                self.objectWillChange.send()
-            }
-        }
-    }
+    
     
     // 添加新方法
     func updateRandomWords() {

@@ -4,12 +4,12 @@ struct CanvasView: View {
     // Tutorial messages
     let tutorialMessages = [
         
-        """
-        tap some words
-        and SHAKE your phone!
-        """,
-        "",
-        
+//        """
+//        tap some words
+//        and SHAKE your phone!
+//        """,
+//        "",
+//        
         
         """
         find infinity to exit
@@ -20,6 +20,8 @@ struct CanvasView: View {
     @State private var isTutorialComplete = false
     @ObservedObject var regionManager = RegionManager.shared
     @State private var showInfinityAlert = false
+    @State private var showSelectWordsAlert = false
+    @State private var isButtonPressed = false
     
     var body: some View {
         ZStack {
@@ -81,7 +83,54 @@ struct CanvasView: View {
                         .padding(.top, 15)
                         .padding(.trailing, 15)
                 }
+                
                 Spacer()
+                
+                // Modified reorder button
+                HStack {
+                    Spacer()
+                    
+                    Button(action: {
+                        // Check if any words are selected
+                        let currentPageIndex = CanvasViewModel.shared.getIndex(
+                            h: CanvasViewModel.shared.currentMainPage?.horizontal ?? 0,
+                            v: CanvasViewModel.shared.currentMainPage?.vertical ?? 0
+                        )
+                        
+                        if let blocks = regionManager.allBlocks[currentPageIndex],
+                           blocks.contains(where: { !$0.isFlashing && !$0.isSeedPhrase && $0.text != nil && !$0.text!.isEmpty }) {
+                            // Words are selected, perform reorder
+                            regionManager.reorderCurrentPage()
+                            
+                            // Add haptic feedback
+                            let impactFeedbackGenerator = UIImpactFeedbackGenerator(style: .heavy)
+                            impactFeedbackGenerator.prepare()
+                            impactFeedbackGenerator.impactOccurred()
+                        } else {
+                            // No words selected, show alert
+                            showSelectWordsAlert = true
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                showSelectWordsAlert = false
+                            }
+                        }
+                    }) {
+                        Triangle()
+                            .fill(Color.white.opacity(0.7))
+                            .frame(width: 25, height: 20)
+                            .scaleEffect(isButtonPressed ? 0.9 : 1.0)
+                    }
+                    .pressEvents {
+                        withAnimation(.easeInOut(duration: 0.1)) {
+                            isButtonPressed = true
+                        }
+                    } onRelease: {
+                        withAnimation(.easeInOut(duration: 0.1)) {
+                            isButtonPressed = false
+                        }
+                    }
+                    .padding(.trailing, 15)
+                    .padding(.bottom, 15)
+                }
             }
             
             // Infinity alert
@@ -98,6 +147,22 @@ struct CanvasView: View {
                     )
                     .transition(.opacity)
                     .animation(.easeInOut, value: showInfinityAlert)
+            }
+
+            // Select words alert
+            if showSelectWordsAlert {
+                Text("select some words")
+                    .font(.custom("IM FELL DW Pica", size: 24))
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(.white)
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color.black.opacity(0.4))
+                            .blur(radius: 10)
+                    )
+                    .transition(.opacity)
+                    .animation(.easeInOut, value: showSelectWordsAlert)
             }
         }
         .onAppear {
@@ -262,5 +327,42 @@ struct LocationIndicator: View {
         let normalizedRow = ((currentPage.vertical % 3) + 3) % 3
         let normalizedCol = ((currentPage.horizontal % 3) + 3) % 3
         return row == normalizedRow && col == normalizedCol
+    }
+}
+
+// Add PressActions view modifier
+struct PressActions: ViewModifier {
+    var onPress: () -> Void
+    var onRelease: () -> Void
+    
+    func body(content: Content) -> some View {
+        content
+            .simultaneousGesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { _ in
+                        onPress()
+                    }
+                    .onEnded { _ in
+                        onRelease()
+                    }
+            )
+    }
+}
+
+extension View {
+    func pressEvents(onPress: @escaping () -> Void, onRelease: @escaping () -> Void) -> some View {
+        modifier(PressActions(onPress: onPress, onRelease: onRelease))
+    }
+}
+
+// 添加一个自定义的三角形形状
+struct Triangle: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.midX, y: rect.maxY))
+        path.addLine(to: CGPoint(x: rect.minX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
+        path.closeSubpath()
+        return path
     }
 }

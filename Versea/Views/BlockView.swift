@@ -26,9 +26,9 @@ struct BlockView: View {
                     Circle()
                         .fill(Color.black)
                         .opacity(1)
-                        .frame(width: 45, height: 45)
-                        .shadow(color: Color.white.opacity(0.12), radius: 10, x: 8, y: -8)
-                        .shadow(color: Color.white.opacity(0.12), radius: 8, x: 8, y: 8)
+                        .frame(width: 40, height: 40)
+                        .shadow(color: Color.white.opacity(0.3), radius: 15, x: 8, y: -8)
+                        .shadow(color: Color.white.opacity(0.3), radius: 12, x: 8, y: 8)
                     
                     Text("infinity")
                         .foregroundColor(.white)
@@ -44,6 +44,7 @@ struct BlockView: View {
                     if !RegionManager.shared.orderedPoem.isEmpty {
                         // collect the tapped words on the screen, reorder them, and add them to orderedPoem
                         RegionManager.shared.reorderCurrentPage()
+                        
 
                         showGlow = true
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
@@ -145,13 +146,21 @@ struct BlockView: View {
             }
         }
         .fullScreenCover(isPresented: $showScreenshot) {
+            let processedPoints = RegionManager.shared.orderedPoem.map { $0.1.map { Point(x: $0.0, y: $0.1) } }
+            let processedWords = RegionManager.shared.orderedPoem.map { $0.2 }
+            
+            // Add infinity point and word
+            let infinityPoint = Point(x: block.position.x, y: block.position.y)
+            let finalPoints = processedPoints + [[infinityPoint]]
+            let finalWords = processedWords + [["infinity"]]
+            
             Screenshot(
-                points: RegionManager.shared.orderedPoem.map { $0.1.map { Point(x: $0.0, y: $0.1) } },
-                wordsArr: RegionManager.shared.orderedPoem.map { $0.2 },
+                points: finalPoints,
+                wordsArr: finalWords,
                 onReset: {
                     // 重置所有状态
-                    RegionManager.shared.resetAll()  // 需要在 RegionManager 中添加这个方法
-                    CanvasViewModel.shared.reset()   // 需要在 CanvasViewModel 中添加这个方法
+                    RegionManager.shared.resetAll()
+                    CanvasViewModel.shared.reset()
                 }
             )
             .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
