@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		3F0BE9272CCB805A00EEB4A0 /* WordManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F0BE9262CCB805500EEB4A0 /* WordManager.swift */; };
+		3F22823A2CE06E4800701A5B /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F2282392CE06E4400701A5B /* NetworkManager.swift */; };
+		3F22823C2CE06FDE00701A5B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F22823B2CE06FDA00701A5B /* AppDelegate.swift */; };
+		3F22823E2CE0727600701A5B /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F22823D2CE0727100701A5B /* NotificationManager.swift */; };
 		3F3BD6F12CE05A5000071BAA /* WordLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F3BD6F02CE05A4D00071BAA /* WordLibrary.swift */; };
 		3F5A10902CA956DD00D41671 /* CanvasViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F5A108F2CA956DD00D41671 /* CanvasViewModel.swift */; };
 		3F5A10962CA958B100D41671 /* ShakeDetectingWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F5A10952CA958B100D41671 /* ShakeDetectingWindow.swift */; };
@@ -27,7 +30,6 @@
 		3FA0749F2C973993002376FB /* BlockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA0749E2C973992002376FB /* BlockView.swift */; };
 		3FA074A32C9739F9002376FB /* LLMAPIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA074A22C9739F9002376FB /* LLMAPIManager.swift */; };
 		3FD525122CDB3635005037FA /* IntroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FD525112CDB362B005037FA /* IntroView.swift */; };
-		3FD8A0722C9C9C29009DB421 /* PixelifySans-VariableFont_wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3FD8A0712C9C9C29009DB421 /* PixelifySans-VariableFont_wght.ttf */; };
 		3FFAA1DC2CD690CB000C86F4 /* IMFellDWPica-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3FFAA1DB2CD690CB000C86F4 /* IMFellDWPica-Regular.ttf */; };
 		3FFAA1DE2CD6ABB5000C86F4 /* PointsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FFAA1DD2CD6ABB0000C86F4 /* PointsView.swift */; };
 		3FFAA1E02CD6ABD3000C86F4 /* Screenshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FFAA1DF2CD6ABD0000C86F4 /* Screenshot.swift */; };
@@ -40,6 +42,9 @@
 
 /* Begin PBXFileReference section */
 		3F0BE9262CCB805500EEB4A0 /* WordManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordManager.swift; sourceTree = "<group>"; };
+		3F2282392CE06E4400701A5B /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
+		3F22823B2CE06FDA00701A5B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		3F22823D2CE0727100701A5B /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		3F3BD6F02CE05A4D00071BAA /* WordLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordLibrary.swift; sourceTree = "<group>"; };
 		3F5A108F2CA956DD00D41671 /* CanvasViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasViewModel.swift; sourceTree = "<group>"; };
 		3F5A10952CA958B100D41671 /* ShakeDetectingWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShakeDetectingWindow.swift; sourceTree = "<group>"; };
@@ -59,7 +64,6 @@
 		3FA074A22C9739F9002376FB /* LLMAPIManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMAPIManager.swift; sourceTree = "<group>"; };
 		3FD525112CDB362B005037FA /* IntroView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntroView.swift; sourceTree = "<group>"; };
 		3FD8A06F2C9C97E3009DB421 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		3FD8A0712C9C9C29009DB421 /* PixelifySans-VariableFont_wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "PixelifySans-VariableFont_wght.ttf"; path = "Versea/Preview Content/Preview Assets.xcassets/PixelifySans-VariableFont_wght.ttf"; sourceTree = SOURCE_ROOT; };
 		3FFAA1DB2CD690CB000C86F4 /* IMFellDWPica-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "IMFellDWPica-Regular.ttf"; sourceTree = "<group>"; };
 		3FFAA1DD2CD6ABB0000C86F4 /* PointsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PointsView.swift; sourceTree = "<group>"; };
 		3FFAA1DF2CD6ABD0000C86F4 /* Screenshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Screenshot.swift; sourceTree = "<group>"; };
@@ -190,7 +194,6 @@
 		3FD8A0702C9C9BDD009DB421 /* Assets */ = {
 			isa = PBXGroup;
 			children = (
-				3FD8A0712C9C9C29009DB421 /* PixelifySans-VariableFont_wght.ttf */,
 				3FA074942C9737BF002376FB /* Assets.xcassets */,
 				3FFAA1DB2CD690CB000C86F4 /* IMFellDWPica-Regular.ttf */,
 			);
@@ -200,7 +203,10 @@
 		3FFAA1DA2CD68F97000C86F4 /* Network */ = {
 			isa = PBXGroup;
 			children = (
+				3F22823D2CE0727100701A5B /* NotificationManager.swift */,
+				3F2282392CE06E4400701A5B /* NetworkManager.swift */,
 				3F0BE9262CCB805500EEB4A0 /* WordManager.swift */,
+				3F22823B2CE06FDA00701A5B /* AppDelegate.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -289,7 +295,6 @@
 				3FA074982C9737BF002376FB /* Preview Assets.xcassets in Resources */,
 				3F744F152CDD494C00D50497 /* poems.md in Resources */,
 				3FA074952C9737BF002376FB /* Assets.xcassets in Resources */,
-				3FD8A0722C9C9C29009DB421 /* PixelifySans-VariableFont_wght.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -304,7 +309,9 @@
 				3FD525122CDB3635005037FA /* IntroView.swift in Sources */,
 				3FFAA1E02CD6ABD3000C86F4 /* Screenshot.swift in Sources */,
 				D70744292CBD28D70077A61D /* Block.swift in Sources */,
+				3F22823A2CE06E4800701A5B /* NetworkManager.swift in Sources */,
 				3F8297022CDD039600472227 /* TogetherAIService.swift in Sources */,
+				3F22823E2CE0727600701A5B /* NotificationManager.swift in Sources */,
 				3F8297032CDD039600472227 /* AIResponseModels.swift in Sources */,
 				3F0BE9272CCB805A00EEB4A0 /* WordManager.swift in Sources */,
 				3F5A10982CA958EE00D41671 /* ColorExtension.swift in Sources */,
@@ -321,6 +328,7 @@
 				3F7FDD8C2CDE863100A8EFEB /* GlowView.swift in Sources */,
 				3FA074912C9737BE002376FB /* VerseaApp.swift in Sources */,
 				3F5A109A2CA95E5200D41671 /* GenerateNoiseImage.swift in Sources */,
+				3F22823C2CE06FDE00701A5B /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -454,7 +462,7 @@
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Versea/Preview Content\"";
 				DEVELOPMENT_TEAM = HA2Q3Y3HX6;
 				ENABLE_PREVIEWS = YES;
@@ -472,7 +480,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0;
+				MARKETING_VERSION = 3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.truthsdares.luminos;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -490,7 +498,7 @@
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Versea/Preview Content\"";
 				DEVELOPMENT_TEAM = HA2Q3Y3HX6;
 				ENABLE_PREVIEWS = YES;
@@ -508,7 +516,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0;
+				MARKETING_VERSION = 3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.truthsdares.luminos;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

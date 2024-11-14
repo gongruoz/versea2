@@ -26,24 +26,25 @@ struct BlockView: View {
                     Circle()
                         .fill(Color.black)
                         .opacity(1)
-                        .frame(width: 60, height: 60)
-                        .shadow(color: Color.white.opacity(0.2), radius: 10, x: 8, y: -8)
-                        .shadow(color: Color.white.opacity(0.2), radius: 8, x: 8, y: 8)
+                        .frame(width: 45, height: 45)
+                        .shadow(color: Color.white.opacity(0.12), radius: 10, x: 8, y: -8)
+                        .shadow(color: Color.white.opacity(0.12), radius: 8, x: 8, y: 8)
                     
-                    Text("INFINITY")
+                    Text("infinity")
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
-                        .font(.custom("IM FELL DW Pica", size: 18))
+                        .font(.custom("IM FELL DW Pica", size: 22))
                 }
                 .frame(width: 80, height: 80)
                 .onTapGesture {
                     let impactFeedbackGenerator = UIImpactFeedbackGenerator(style: .medium)
                     impactFeedbackGenerator.prepare()
                     impactFeedbackGenerator.impactOccurred()
+                    
                     if !RegionManager.shared.orderedPoem.isEmpty {
-                        // 添加 INFINITY 到 orderedPoem
-                        RegionManager.shared.addInfinityToPoem(block: block)
-                        
+                        // collect the tapped words on the screen, reorder them, and add them to orderedPoem
+                        RegionManager.shared.reorderCurrentPage()
+
                         showGlow = true
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                             showScreenshot = true
@@ -53,6 +54,7 @@ struct BlockView: View {
                         // 通知 CanvasView 显示提示
                         NotificationCenter.default.post(name: NSNotification.Name("ShowInfinityAlert"), object: nil)
                     }
+                    
                 }
             } else {
                 // Normal block view

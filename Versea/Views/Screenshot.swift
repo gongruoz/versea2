@@ -8,8 +8,8 @@ struct Screenshot: View {
     @State private var shotting = false
     var onReset: () -> Void  // 添加回调函数
     
-    var smallNoise: UIImage = generateNoiseImage(w: 1000, h: 1000, whiten_factor: 0.99, fine_factor: 0.001) ?? UIImage()
-    var denseNoise: UIImage = generateNoiseImage(w: 500, h: 500, whiten_factor: 0.99, fine_factor: 0.0001) ?? UIImage()
+    var smallNoise: UIImage = generateNoiseImage(w: 1300, h: 1300, whiten_factor: 0.99, fine_factor: 0.001) ?? UIImage()
+    var denseNoise: UIImage = generateNoiseImage(w: 600, h: 600, whiten_factor: 0.99, fine_factor: 0.0001) ?? UIImage()
     
     @State private var showingSaveConfirmation = false
     

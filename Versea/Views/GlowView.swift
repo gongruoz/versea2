@@ -10,7 +10,7 @@ import SwiftUI
 struct GlowView: View {
     @Binding var isVisible: Bool  // 控制白光显示/隐藏的绑定变量
     @State private var scale: CGFloat = 0.5  // 白光初始大小为原始尺寸的 50%
-    @State private var opacity: Double = 0.9
+    @State private var opacity: Double = 0.85
     
     var body: some View {
         RoundedRectangle(cornerRadius: 300, style: .continuous)  // 圆角矩形，圆角半径为 30

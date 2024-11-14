@@ -167,13 +167,13 @@ class RegionManager: ObservableObject {
                         if let existingIndex = self.orderedPoem.firstIndex(where: { $0.0 == capturedPageIndex }) {
                             if !self.arePositionsEqual(self.orderedPoem[existingIndex].1, capturedBlockPositions) ||
                                self.orderedPoem[existingIndex].2 != reorderedText {
-                                self.orderedPoem[existingIndex] = (capturedPageIndex, 
-                                                                 capturedBlockPositions, 
+                                self.orderedPoem[existingIndex] = (capturedPageIndex,
+                                                                 capturedBlockPositions,
                                                                  reorderedText)
                             }
                         } else {
-                            self.orderedPoem.append((capturedPageIndex, 
-                                                   capturedBlockPositions, 
+                            self.orderedPoem.append((capturedPageIndex,
+                                                   capturedBlockPositions,
                                                    reorderedText))
                         }
                     }
@@ -305,6 +305,7 @@ class RegionManager: ObservableObject {
         objectWillChange.send()
     }
     
+    // tap infinity 的时候，为了生成 screenshot page 而结算
     func addInfinityToPoem(block: Block) {
         let pageIndex = block.page_index
         let position = block.position
@@ -374,4 +375,3 @@ class RegionManager: ObservableObject {
         }
     }
 }
-

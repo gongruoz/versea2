@@ -3,20 +3,16 @@ import SwiftUI
 struct CanvasView: View {
     // Tutorial messages
     let tutorialMessages = [
-        "",
+        
         """
-        keep scrolling in any direction
-        to return to the start
+        tap some words
+        and SHAKE your phone!
         """,
         "",
+        
+        
         """
-        tap to select words
-        shake to reorder them
-        """,
-        "",
-        """
-        words reveal the path
-        toward infinity
+        find infinity to exit
         """
     ]
     
@@ -40,6 +36,10 @@ struct CanvasView: View {
                 }
             )
             .ignoresSafeArea()
+            .onAppear {
+                // 设置初始位置为 0-0
+                CanvasViewModel.shared.updateCurrentMainPage(horizontal: 0, vertical: 0)
+            }
             
             // Tutorial Overlay
             if !isTutorialComplete {
@@ -59,11 +59,17 @@ struct CanvasView: View {
                     }
             }
             
-            // Line breaks counter
+            // Top status bar with indicators
             VStack {
                 HStack {
+                    // New position indicator
+                    LocationIndicator(currentPage: CanvasViewModel.shared.currentMainPage)
+                        .padding(.leading, 15)
+                    
                     Spacer()
-                    Text("\(regionManager.orderedPoem.count) line breaks")
+                    
+                    // Existing line breaks counter
+                    Text("\(regionManager.orderedPoem.count) \(regionManager.orderedPoem.count <= 1 ? "line" : "lines") of poem")
                         .font(.custom("IM FELL DW Pica", size: 15))
                         .foregroundColor(.white)
                         .padding()
@@ -95,8 +101,11 @@ struct CanvasView: View {
             }
         }
         .onAppear {
-            // 只在这里启动一次自动闪烁
+            // 合并现有的 onAppear 代码
             regionManager.startAutoFlashing()
+            
+            // 设置初始位置为 0-0
+            CanvasViewModel.shared.updateCurrentMainPage(horizontal: 0, vertical: 0)
             
             // 添加通知监听
             NotificationCenter.default.addObserver(forName: NSNotification.Name("ShowInfinityAlert"), object: nil, queue: .main) { _ in
@@ -131,7 +140,9 @@ struct PageView: View {
     @State private var percent: Double = 0
     var smallNoise: UIImage = generateNoiseImage(w: 1000, h: 1000, whiten_factor: 0.99, fine_factor: 0.001) ?? UIImage()
     var denseNoise: UIImage = generateNoiseImage(w: 500, h: 500, whiten_factor: 0.99, fine_factor: 0.0001) ?? UIImage()
-
+    @State private var lastShakeTime: Date = Date.distantPast
+    private let minimumShakeInterval: TimeInterval = 1.0 // 1秒的最小间隔
+    
     var body: some View {
         VStack {
             Color.clear
@@ -184,12 +195,72 @@ struct PageView: View {
                     }
                 }
                 .onShake {
+                    let now = Date()
+                    guard now.timeIntervalSince(lastShakeTime) >= minimumShakeInterval else {
+                        return // 如果距离上次摇晃不足1秒，则忽略这次摇晃
+                    }
+                    lastShakeTime = now
+                    
                     regionManager.reorderCurrentPage()
+                    
+                    // 添加震动
                     let impactFeedbackGenerator = UIImpactFeedbackGenerator(style: .heavy)
                     impactFeedbackGenerator.prepare()
                     impactFeedbackGenerator.impactOccurred()
                 }
                 .clipped()
         }
+    }
+}
+
+// 新增的位置指示器组件
+struct LocationIndicator: View {
+    let currentPage: (horizontal: Int, vertical: Int)?
+    
+    var body: some View {
+        VStack(spacing: 2) {
+            ForEach(0..<3) { row in
+                HStack(spacing: 2) {
+                    ForEach(0..<3) { col in
+                        if isCurrentPosition(row: row, col: col) {
+                            // 当前位置的点
+                            Circle()
+                                .fill(
+                                    RadialGradient(
+                                        gradient: Gradient(colors: [
+                                            Color.white,
+                                            Color.white.opacity(0.3)
+                                        ]),
+                                        center: .center,
+                                        startRadius: 0,
+                                        endRadius: 3
+                                    )
+                                )
+                                .frame(width: 6, height: 6)
+                                .blur(radius: 0.3)
+                        } else {
+                            // 其他位置的点
+                            Circle()
+                                .stroke(Color.white.opacity(0.3), lineWidth: 0.5)
+                                .frame(width: 6, height: 6)
+                        }
+                    }
+                }
+            }
+        }
+        .padding(8)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color.black.opacity(0.4))
+                .blur(radius: 3)
+        )
+        .padding(.top, 15)
+    }
+    
+    private func isCurrentPosition(row: Int, col: Int) -> Bool {
+        guard let currentPage = currentPage else { return false }
+        let normalizedRow = ((currentPage.vertical % 3) + 3) % 3
+        let normalizedCol = ((currentPage.horizontal % 3) + 3) % 3
+        return row == normalizedRow && col == normalizedCol
     }
 }

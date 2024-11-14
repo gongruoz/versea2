@@ -37,24 +37,29 @@ struct GridView: View {
         let columns = 4
         let rows = Int(ceil(Double(words.count) / 2.0))
         let totalCells = rows * columns
-        let positions = Array(0..<totalCells).shuffled().prefix(words.count)
+        
+        // 生成有序的位置数组
+        let positions = generateOrderedPositions(totalCells: totalCells, wordCount: words.count)
         
         GeometryReader { geometry in
             let cellWidth = geometry.size.width / CGFloat(columns)
             let cellHeight = cellWidth
-//            let totalHeight = cellHeight * CGFloat(rows)
             
             ZStack {
-                ForEach(0..<words.count, id: \.self) { index in
+                ForEach(Array(words.enumerated()), id: \.offset) { index, word in
                     let position = positions[index]
                     let x = position % columns
                     let y = position / columns
                     let randOpacity = Double.random(in: 0.15...0.3)
                     
-                    RoundedRectangle(cornerRadius: cellHeight / 2, style: .continuous)
+                    // 背景光晕
+                    RoundedRectangle(cornerRadius: cellHeight / 2)
                         .fill(
                             RadialGradient(
-                                gradient: Gradient(colors: [Color.white.opacity(randOpacity), Color.white.opacity(0)]),
+                                gradient: Gradient(colors: [
+                                    Color.white.opacity(randOpacity),
+                                    Color.white.opacity(0)
+                                ]),
                                 center: .center,
                                 startRadius: 0,
                                 endRadius: cellHeight * 0.5
@@ -66,7 +71,8 @@ struct GridView: View {
                             y: CGFloat(y) * cellHeight + cellHeight / 2
                         )
                     
-                    Text(words[index])
+                    // 文字
+                    Text(word)
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
                         .font(.custom("IM FELL DW Pica", size: 20))
@@ -78,6 +84,24 @@ struct GridView: View {
                 }
             }
         }
-        .frame(height: UIScreen.main.bounds.width / CGFloat(columns) * CGFloat(rows))  // 使用屏幕宽度计算高度
+        .frame(height: UIScreen.main.bounds.width / CGFloat(columns) * CGFloat(rows))
+    }
+    
+    // 生成有序的位置数组，保持从上到下从左到右的顺序
+    private func generateOrderedPositions(totalCells: Int, wordCount: Int) -> [Int] {
+        // 1. 创建所有可用位置
+        var availablePositions = Array(0..<totalCells)
+        
+        // 2. 随机选择要使用的位置
+        var selectedPositions = [Int]()
+        while selectedPositions.count < wordCount && !availablePositions.isEmpty {
+            let randomIndex = Int.random(in: 0..<availablePositions.count)
+            selectedPositions.append(availablePositions.remove(at: randomIndex))
+        }
+        
+        // 3. 对选中的位置进行排序，确保从上到下从左到右的顺序
+        selectedPositions.sort()
+        
+        return selectedPositions
     }
 }
