@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct IntroView: View {
-    @State private var isIntroComplete = false
     @State private var introOpacity = 0.0
     @State private var showCanvas = false
     @State private var glowScale: CGFloat = 1.0
@@ -11,13 +10,15 @@ struct IntroView: View {
     
     var body: some View {
         ZStack {
+            // Add a black background that fills the entire screen
             Color.black
                 .ignoresSafeArea()
             
+            // conditional rendering    
             if showCanvas {
                 CanvasView()
-                    .transition(.opacity)
-                    .animation(.easeIn(duration: 1.0), value: showCanvas)
+                     .transition(.opacity)
+                     .animation(.easeIn(duration: 1.0), value: showCanvas)
             } else {
                 VStack(spacing: 0) {
                     Spacer()
@@ -112,14 +113,6 @@ struct IntroView: View {
                 }
             }
         }
-    }
-}
-
-
-
-struct ContentView: View {
-    var body: some View {
-        IntroView()
     }
 }
 

@@ -25,6 +25,10 @@ struct CanvasView: View {
     
     var body: some View {
         ZStack {
+            // Add a black background that fills the entire screen
+            Color.black
+                .ignoresSafeArea()
+            
             // Main content
             Infinite4Pager(
                 initialHorizontalPage: 3,
@@ -167,7 +171,7 @@ struct CanvasView: View {
         }
         .onAppear {
             // 合并现有的 onAppear 代码
-            regionManager.startAutoFlashing()
+//            regionManager.startAutoFlashing()
             
             // 设置初始位置为 0-0
             CanvasViewModel.shared.updateCurrentMainPage(horizontal: 0, vertical: 0)
@@ -223,7 +227,7 @@ struct PageView: View {
                             ZStack {
                                 LazyVGrid(columns: columns, spacing: 0) {
                                     ForEach(blocks.indices, id: \.self) { index in
-                                        BlockView(word: .constant(blocks[index].text ?? ""), block: blocks[index])
+                                        BlockView(block: blocks[index])
                                             .frame(width: blockWidth, height: blockHeight)
                                     }
                                 }
@@ -330,7 +334,7 @@ struct LocationIndicator: View {
     }
 }
 
-// Add PressActions view modifier
+// Add PressActions view modifier 为了按压触感反馈
 struct PressActions: ViewModifier {
     var onPress: () -> Void
     var onRelease: () -> Void

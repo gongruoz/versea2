@@ -16,9 +16,10 @@ class RegionManager: ObservableObject {
     
     // 用于存储每个页面的诗句
     @Published var orderedPoem: [(String, [(Int, Int)], [String])] = []
+    // 添加一个标志来追踪是否正在重排序
+    private var isReordering = false
     
-    private var isReordering = false  // 添加一个标志来追踪是否正在重排序
-    
+    // initialize all blocks
     init() {
         var allBlocksList: [Block] = []
         
@@ -27,9 +28,9 @@ class RegionManager: ObservableObject {
                 var blocks: [Block] = []
                 for j in 0..<8 {
                     for k in 0..<4 {
+                        let page_index = "\(x)-\(y)"
                         let position = (x: j, y: k)
                         let id = "\(x)\(y)-\(j)\(k)"
-                        let page_index = "\(x)-\(y)"
                         
                         let newBlock = Block(id: id, page_index: page_index, position: position)
                         blocks.append(newBlock)
@@ -41,10 +42,10 @@ class RegionManager: ObservableObject {
             }
         }
         
-        // 固定在第三行第二列的位置 (2, 1)
+        // 固定在第二行第二列的位置 (1, 1)
         if let firstScreenBlocks = allBlocks["0-0"] {
             if let seedBlock = firstScreenBlocks.first(where: { block in
-                block.position == (x: 1, y: 0)
+                block.position == (x: 1, y: 1)
             }) {
                 seedBlock.isFlashing = false
                 seedBlock.isSeedPhrase = true  // 标记为种子词
@@ -72,7 +73,7 @@ class RegionManager: ObservableObject {
         }
         
         // 在初始化时就开始闪烁
-        startAutoFlashing()
+       startAutoFlashing()
     }
     
 
@@ -85,13 +86,46 @@ class RegionManager: ObservableObject {
         }
     }
     
-    
+    // updates random words every 2.3 seconds
     func startAutoFlashing() {
         // 如果定时器已经存在，不再创建新的定时器
         guard timer == nil else { return }
         
         timer = Timer.scheduledTimer(withTimeInterval: 2.3, repeats: true) { [weak self] _ in
             self?.updateRandomWords()
+        }
+    }
+    
+    // 这里面有两个随机生成器
+    // 1. 每次更新一半的方块，为了错落有致的视觉效果
+    // 2. 在所有 available 的选项中，保持 1/3 方块有闪烁的字，为了不会太拥挤
+    func updateRandomWords() {
+        // 遍历所有页面
+        for (_, blocks) in self.allBlocks {
+            // 获取可以闪烁的方块（isFlashing 为 true）
+            let flashingBlocks = blocks.filter { $0.isFlashing }
+            
+            // 为了形成错落有致的效果，每次更新1/2的方块
+            // 计算要更新的方块数量（1/2）
+            let updateCount = max(1, flashingBlocks.count / 2)
+            
+            // 随机选择这些方块
+            let selectedBlocks = flashingBlocks.shuffled().prefix(updateCount)
+            
+            // 更新选中的方块
+            for block in selectedBlocks {
+                // 随机生成新的文字
+                let randomWord: String
+                if arc4random_uniform(3) == 1 {
+                    randomWord = self.generateRandomWord()
+
+                } else {
+                    randomWord = ""
+                }
+                
+                // 更新方块的文字
+                self.update(for: block.page_index, blockID: block.id, newWord: randomWord)
+            }
         }
     }
     
@@ -102,10 +136,10 @@ class RegionManager: ObservableObject {
     }
     
     
-    // 非异步版本，直接从缓存中获取一个随机单词
+    // 从词库中选取一个随机单词
     func generateRandomWord() -> String {
-        // 从已缓存的词库中选取一个随机单词
         let randomWord = WordManager.shared.wordList.randomElement() ?? ""
+        
         return randomWord
     }
     
@@ -305,34 +339,45 @@ class RegionManager: ObservableObject {
         objectWillChange.send()
     }
     
-    
-    
-    // 添加新方法
-    func updateRandomWords() {
-        // 遍历所有页面
-        for (_, blocks) in self.allBlocks {
-            // 获取可以闪烁的方块（isFlashing 为 true）
-            let flashingBlocks = blocks.filter { $0.isFlashing }
-            
-            // 计算要更新的方块数量（1/2）
-            let updateCount = max(1, flashingBlocks.count / 2)
-            
-            // 随机选择这些方块
-            let selectedBlocks = flashingBlocks.shuffled().prefix(updateCount)
-            
-            // 更新选中的方块
-            for block in selectedBlocks {
-                // 随机生成新的文字
-                let randomWord: String
-                if arc4random_uniform(3) == 1 {
-                    randomWord = self.generateRandomWord()
-                } else {
-                    randomWord = ""
+    func addInfinityToPoem(block: Block) {
+        let pageIndex = block.page_index
+        let position = block.position
+        
+        DispatchQueue.main.async {
+            if !self.orderedPoem.isEmpty {
+                // 先添加种子词（如果还没有添加）
+                if let seedBlock = self.allBlocks["0-0"]?.first(where: { $0.isSeedPhrase }),
+                   !self.orderedPoem.contains(where: { $0.2.contains(seedBlock.text ?? "") }) {
+                    
+                    // 如果第一页已经有内容，插入到第一页的开头
+                    if let firstPageIndex = self.orderedPoem.firstIndex(where: { $0.0 == "0-0" }) {
+                        var existingPage = self.orderedPoem[firstPageIndex]
+                        // 在现有位置列表的开头添加种子词的位置
+                        existingPage.1.insert((seedBlock.position.x, seedBlock.position.y), at: 0)
+                        // 在现有文本列表的开头添加种子词
+                        existingPage.2.insert(seedBlock.text ?? "", at: 0)
+                        self.orderedPoem[firstPageIndex] = existingPage
+                    } else {
+                        // 如果第一页还没有内容，创建新的记录
+                        self.orderedPoem.insert((
+                            "0-0",
+                            [(seedBlock.position.x, seedBlock.position.y)],
+                            [seedBlock.text ?? ""]
+                        ), at: 0)
+                    }
                 }
                 
-                // 更新方块的文字
-                self.update(for: block.page_index, blockID: block.id, newWord: randomWord)
+                // 再添加 infinity
+                self.orderedPoem.append((
+                    pageIndex,
+                    [(position.x, position.y)],
+                    ["infinity"]
+                ))
+                
+                self.objectWillChange.send()
             }
         }
     }
+    
+    
 }

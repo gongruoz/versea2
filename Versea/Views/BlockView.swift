@@ -3,17 +3,16 @@ import CoreImage
 import CoreImage.CIFilterBuiltins
 
 struct BlockView: View {
-    @Binding var word: String
     @ObservedObject var block: Block
     @State private var showScreenshot = false
-    @State private var isVisible = false
-    @State private var isTextVisible = false
+    @State private var isGlowVisible = false // 控制方块的发光效果
+    @State private var isTextVisible = false // 控制文字的透明度
     private let animationDuration: Double = 2.3
     @State private var showGlow = false
     
     // 统一管理动画状态
     private var shouldAnimate: Bool {
-        block.isFlashing && block.text != nil && !block.text!.isEmpty && block.text != " "
+        block.isFlashing && block.text != nil && block.text != "" && block.text != " "
     }
     
     var body: some View {
@@ -21,7 +20,7 @@ struct BlockView: View {
             if block.isExitButton {
                 // Exit button (INFINITY) view
                 ZStack {
-                    GlowView(isVisible: $showGlow)
+                    GlowView(isGlowVisible: $showGlow)
                     
                     Circle()
                         .fill(Color.black)
@@ -88,13 +87,13 @@ struct BlockView: View {
                                 )
                             )
                             .padding(3)
-                            .opacity(isVisible ? 0.3 : 0)
-                            .scaleEffect(isVisible ? 1.0 : 0.95)
+                            .opacity(isGlowVisible ? 0.3 : 0)
+                            .scaleEffect(isGlowVisible ? 1.0 : 0.95)
                     }
 
                     // 文字显示
                     VStack(spacing: -20) {
-                        Text(word)
+                        Text(block.text ?? "")
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .foregroundColor(.white)
                             .multilineTextAlignment(.center)
@@ -116,19 +115,19 @@ struct BlockView: View {
                     // 只在需要动画时启动动画
                     if shouldAnimate {
                         withAnimation(Animation.easeInOut(duration: animationDuration)) {
-                            isVisible.toggle()
+                            isGlowVisible.toggle()
                             isTextVisible.toggle()
                         }
                     } // removed .repeatForever(autoreverses: true)
                 }
                 .onChange(of: shouldAnimate) { oldValue, newValue in
-                    if newValue {
+                    if newValue { // shouldAnimate 变为 true
                         withAnimation(Animation.easeInOut(duration: animationDuration)) {
-                            isVisible.toggle()
+                            isGlowVisible.toggle()
                             isTextVisible.toggle()
                         }
-                    } else {
-                        isVisible = false
+                    } else { // shouldAnimate 变为 false
+                        isGlowVisible = false
                         isTextVisible = true
                     }
                 }
@@ -168,3 +167,4 @@ struct BlockView: View {
         }
     }
 }
+
